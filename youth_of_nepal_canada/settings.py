@@ -145,4 +145,4 @@ EMAIL_HOST_USER = os.environ.get('DJANGO_EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('DJANGO_EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = os.environ.get('DJANGO_EMAIL_USE_TLS') == 'True'
 EMAIL_USE_SSL = os.environ.get('DJANGO_EMAIL_USE_SSL') == 'True'
-EMAIL_TIMEOUT = int(os.environ.get('DJANGO_EMAIL_TIMEOUT'))
+EMAIL_TIMEOUT = os.environ.get('DJANGO_EMAIL_TIMEOUT')
