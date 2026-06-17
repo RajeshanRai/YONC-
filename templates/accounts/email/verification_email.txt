@@ -1,0 +1,14 @@
+Hello,
+
+Thank you for registering with Youth of Nepal in Canada.
+
+Your verification code is:
+
+{{ code }}
+
+This code is valid for {{ expiration_minutes }} minute(s).
+
+If you did not request this email, you can ignore it.
+
+Thank you,
+Youth of Nepal in Canada Team

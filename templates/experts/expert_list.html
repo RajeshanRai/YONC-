@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-7xl mx-auto">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-text-primary mb-2">
+                {% if category %}
+                    {% if category.slug == 'emergency-contacts' %}
+                        <i class="{{ category.icon_class }} text-accent-blue mr-2"></i>Emergency Contacts
+                    {% else %}
+                        <i class="{{ category.icon_class }} text-accent-blue mr-2"></i>{{ category.name }} Experts
+                    {% endif %}
+                {% elif province_name %}
+                <i class="fa-solid fa-map-location-dot text-accent-blue mr-2"></i>Experts in {{ province_name }}
+                {% else %}
+                Find an Expert
+                {% endif %}
+            </h1>
+            <p class="text-text-secondary">
+                {% if category and category.slug == 'emergency-contacts' %}
+                    Find key Nepali community and consular support contacts for Canada.
+                {% elif total_count %}
+                {{ total_count }} expert{{ total_count|pluralize }} available
+                {% else %}
+                Browse our community of verified professionals
+                {% endif %}
+            </p>
+        </div>
+        
+        {% if category and category.slug == 'emergency-contacts' %}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="lg:col-span-2 bg-bg-surface border border-border-subtle rounded-3xl p-6 shadow-sm">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 rounded-full bg-accent-blue/10 text-accent-blue flex items-center justify-center">
+                        <i class="fa-solid fa-phone-volume text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-semibold text-text-primary">Key Nepali Emergency Contacts in Canada</h2>
+                        <p class="text-text-secondary text-sm">Official consular and community support for Nepali people across Canada.</p>
+                    </div>
+                </div>
+                <div class="space-y-4 text-sm text-text-secondary">
+                    <div class="rounded-2xl bg-bg-navy p-4 border border-border-subtle">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-text-primary font-semibold">Embassy of Nepal in Ottawa</p>
+                                <p>350 Sparks St, Suite 1206, Ottawa, ON K1R 7S8</p>
+                                <p>Phone: <a href="tel:+16132326615" class="text-accent-blue hover:underline">+1 613-232-6615</a></p>
+                                <p>Email: <a href="mailto:info@nepalembassy.ca" class="text-accent-blue hover:underline">info@nepalembassy.ca</a></p>
+                            </div>
+                            <span class="text-xs uppercase tracking-[0.15em] text-text-muted">Embassy</span>
+                        </div>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <a href="tel:+16132326615" class="inline-flex items-center gap-2 px-4 py-2 bg-accent-blue text-white rounded-lg text-xs font-medium hover:bg-blue-600 transition-all">
+                                <i class="fa-solid fa-phone"></i>Call
+                            </a>
+                            <a href="mailto:info@nepalembassy.ca" class="inline-flex items-center gap-2 px-4 py-2 bg-bg-surface border border-border-subtle rounded-lg text-xs font-medium text-text-primary hover:bg-bg-navy-hover transition-all">
+                                <i class="fa-solid fa-envelope"></i>Email
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl bg-bg-navy p-4 border border-border-subtle">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-text-primary font-semibold">Consulate General of Nepal in Toronto</p>
+                                <p>7 St. Clair Ave E, Suite 608, Toronto, ON M4T 2V9</p>
+                                <p>Phone: <a href="tel:+14169442444" class="text-accent-blue hover:underline">+1 416-944-2444</a></p>
+                                <p>Email: <a href="mailto:info@nepalconsulate.ca" class="text-accent-blue hover:underline">info@nepalconsulate.ca</a></p>
+                            </div>
+                            <span class="text-xs uppercase tracking-[0.15em] text-text-muted">Consulate</span>
+                        </div>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <a href="tel:+14169442444" class="inline-flex items-center gap-2 px-4 py-2 bg-accent-blue text-white rounded-lg text-xs font-medium hover:bg-blue-600 transition-all">
+                                <i class="fa-solid fa-phone"></i>Call
+                            </a>
+                            <a href="mailto:info@nepalconsulate.ca" class="inline-flex items-center gap-2 px-4 py-2 bg-bg-surface border border-border-subtle rounded-lg text-xs font-medium text-text-primary hover:bg-bg-navy-hover transition-all">
+                                <i class="fa-solid fa-envelope"></i>Email
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl bg-bg-navy p-4 border border-border-subtle">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-text-primary font-semibold">Consulate General of Nepal in Vancouver</p>
+                                <p>701 W Georgia St, Suite 1030, Vancouver, BC V7Y 1C6</p>
+                                <p>Phone: <a href="tel:+16046892884" class="text-accent-blue hover:underline">+1 604-689-2884</a></p>
+                                <p>Email: <a href="mailto:info@nepalconsulate.ca" class="text-accent-blue hover:underline">info@nepalconsulate.ca</a></p>
+                            </div>
+                            <span class="text-xs uppercase tracking-[0.15em] text-text-muted">Consulate</span>
+                        </div>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <a href="tel:+16046892884" class="inline-flex items-center gap-2 px-4 py-2 bg-accent-blue text-white rounded-lg text-xs font-medium hover:bg-blue-600 transition-all">
+                                <i class="fa-solid fa-phone"></i>Call
+                            </a>
+                            <a href="mailto:info@nepalconsulate.ca" class="inline-flex items-center gap-2 px-4 py-2 bg-bg-surface border border-border-subtle rounded-lg text-xs font-medium text-text-primary hover:bg-bg-navy-hover transition-all">
+                                <i class="fa-solid fa-envelope"></i>Email
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl bg-bg-navy p-4 border border-border-subtle">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-text-primary font-semibold">Non-Resident Nepali Association Canada (NRNA Canada)</p>
+                                <p>Helps Nepali community members with support, advocacy, and emergency coordination.</p>
+                                <p>Email: <a href="mailto:info@nrncanada.org" class="text-accent-blue hover:underline">info@nrncanada.org</a></p>
+                                <p>Website: <a href="https://www.nrnacanada.org/" class="text-accent-blue hover:underline">nrncanada.org</a></p>
+                            </div>
+                            <span class="text-xs uppercase tracking-[0.15em] text-text-muted">Community</span>
+                        </div>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <a href="mailto:info@nrncanada.org" class="inline-flex items-center gap-2 px-4 py-2 bg-bg-surface border border-border-subtle rounded-lg text-xs font-medium text-text-primary hover:bg-bg-navy-hover transition-all">
+                                <i class="fa-solid fa-envelope"></i>Email
+                            </a>
+                            <a href="https://nrncanada.org" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-accent-blue text-white rounded-lg text-xs font-medium hover:bg-blue-600 transition-all">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>Visit website
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-bg-surface border border-border-subtle rounded-3xl p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-text-primary mb-3">Immediate Canada-wide help</h3>
+                <div class="space-y-3 text-sm text-text-secondary">
+                    <div class="rounded-2xl bg-bg-navy p-4 border border-border-subtle">
+                        <p class="font-semibold text-text-primary">Emergency Services</p>
+                        <p>Call <span class="font-bold">911</span> for police, fire, or ambulance.</p>
+                    </div>
+                    <div class="rounded-2xl bg-bg-navy p-4 border border-border-subtle">
+                        <p class="font-semibold text-text-primary">Non-Emergency Police</p>
+                        <p>Use local non-emergency numbers for reporting less urgent incidents.</p>
+                    </div>
+                    <div class="rounded-2xl bg-bg-navy p-4 border border-border-subtle">
+                        <p class="font-semibold text-text-primary">Nepal Canada Chamber of Commerce</p>
+                        <p>Supports business and community members across provinces.</p>
+                        <p>Website: <a href="https://nepalcanadachamber.ca" class="text-accent-blue hover:underline">nepalcanadachamber.ca</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Filters & Search -->
+        <div class="bg-bg-navy border border-border-subtle rounded-xl p-4 mb-8">
+            <form method="get" class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1 relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm"></i>
+                    <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search by name, specialty, or keyword..."
+                           class="w-full pl-10 pr-4 py-2.5 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-blue transition-colors text-sm">
+                </div>
+                <div class="w-full md:w-48">
+                    <select name="category" onchange="this.form.submit()"
+                            class="w-full px-4 py-2.5 rounded-lg bg-bg-surface border border-border-subtle text-text-primary focus:outline-none focus:border-accent-blue transition-colors text-sm appearance-none cursor-pointer">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="w-full md:w-48">
+                    <select name="province" onchange="this.form.submit()"
+                            class="w-full px-4 py-2.5 rounded-lg bg-bg-surface border border-border-subtle text-text-primary focus:outline-none focus:border-accent-blue transition-colors text-sm appearance-none cursor-pointer">
+                        <option value="">All Provinces</option>
+                        {% for code, name in provinces %}
+                        <option value="{{ code }}" {% if request.GET.province == code or province_code == code %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="px-6 py-2.5 bg-accent-blue hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-all">
+                    <i class="fa-solid fa-filter mr-1"></i>Filter
+                </button>
+            </form>
+        </div>
+        
+        <!-- Top Picks -->
+        {% if top_picks and not category and not province_name and not request.GET.search %}
+        <div class="mb-10">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="fa-solid fa-star text-accent-cyan"></i>
+                <h2 class="text-lg font-semibold text-text-primary">Top Expert Picks</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {% for expert in top_picks %}
+                {% include 'partials/expert_card.html' with expert=expert %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- All Experts Grid -->
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold text-text-primary mb-4">
+                {% if top_picks and not category and not province_name %}Browse All Experts{% else %}Experts{% endif %}
+            </h2>
+            
+            {% if experts %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for expert in experts %}
+                {% include 'partials/expert_card.html' with expert=expert %}
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if experts.has_other_pages %}
+            <div class="flex justify-center mt-10 gap-2">
+                {% if experts.has_previous %}
+                <a href="?page={{ experts.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.province %}&province={{ request.GET.province }}{% endif %}"
+                   class="px-4 py-2 bg-bg-navy border border-border-subtle rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover transition-all">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </a>
+                {% endif %}
+                
+                {% for num in experts.paginator.page_range %}
+                {% if experts.number == num %}
+                <span class="px-4 py-2 bg-accent-blue text-white rounded-lg font-medium">{{ num }}</span>
+                {% elif num > experts.number|add:'-3' and num < experts.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.province %}&province={{ request.GET.province }}{% endif %}"
+                   class="px-4 py-2 bg-bg-navy border border-border-subtle rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover transition-all">{{ num }}</a>
+                {% endif %}
+                {% endfor %}
+                
+                {% if experts.has_next %}
+                <a href="?page={{ experts.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.province %}&province={{ request.GET.province }}{% endif %}"
+                   class="px-4 py-2 bg-bg-navy border border-border-subtle rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover transition-all">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-16 bg-bg-navy border border-border-subtle rounded-xl">
+                <div class="w-16 h-16 mx-auto bg-bg-surface rounded-full flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-user-slash text-2xl text-text-muted"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-text-primary mb-2">No experts found</h3>
+                <p class="text-text-secondary text-sm max-w-md mx-auto mb-6">
+                    {% if category %}
+                    No approved experts in {{ category.name }} yet. Check back soon!
+                    {% elif province_name %}
+                    No approved experts in {{ province_name }} yet. Check back soon!
+                    {% else %}
+                    Try adjusting your filters or search terms to find what you're looking for.
+                    {% endif %}
+                </p>
+                <a href="{% url 'expert_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-accent-blue hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-all">
+                    <i class="fa-solid fa-rotate-left"></i>Clear Filters
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- CTA -->
+        <div class="text-center mt-8 py-8 border-t border-border-subtle">
+            <p class="text-text-secondary mb-4">Can't find what you're looking for?</p>
+            <a href="{% url 'apply_expert' %}" class="inline-flex items-center gap-2 px-6 py-3 border border-accent-blue text-accent-blue hover:bg-accent-blue hover:text-white rounded-xl transition-all font-medium">
+                <i class="fa-solid fa-user-graduate"></i>
+                Become an Expert
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-5xl mx-auto space-y-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <p class="text-sm uppercase tracking-[0.3em] text-accent-cyan font-semibold mb-2">Experience</p>
+                <h1 class="text-3xl font-bold text-text-primary">Manage Your Work History</h1>
+                <p class="text-text-secondary mt-2">Record your roles and company experience so users can see your professional journey.</p>
+            </div>
+            <a href="{% url 'expert_dashboard' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-bg-surface border border-border-subtle text-sm text-text-primary hover:border-accent-blue transition-all">
+                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Experience Summary -->
+        <div class="rounded-3xl border border-accent-cyan/30 bg-gradient-to-r from-accent-cyan/5 to-accent-blue/5 p-6 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <p class="text-sm text-text-muted mb-1">Your Total Professional Experience</p>
+                    <p class="text-3xl font-bold text-accent-cyan">{{ total_experience }}<span class="text-lg text-text-muted ml-2">years</span></p>
+                    <p class="text-xs text-text-secondary mt-2">Based on {{ experiences|length }} work experience entr{{ experiences|length|pluralize:"y,ies" }}</p>
+                </div>
+                <div class="flex flex-col gap-2 text-sm text-text-secondary">
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days text-accent-cyan"></i>
+                        <span>Earliest start: <strong>{{ earliest_date }}</strong></span>
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-clock text-accent-cyan"></i>
+                        <span>Latest end: <strong>{{ latest_date }}</strong></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-2">
+            <div class="rounded-3xl border border-border-subtle bg-bg-surface p-6 shadow-sm">
+                <h2 class="text-xl font-bold text-text-primary mb-4">Add Experience</h2>
+                <form method="post" class="space-y-5">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-semibold text-text-secondary mb-2">Company</label>
+                        {{ form.company }}
+                        {% if form.company.errors %}
+                        <p class="text-sm text-emergency-red mt-2">{{ form.company.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-text-secondary mb-2">Role / Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <p class="text-sm text-emergency-red mt-2">{{ form.title.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-text-secondary mb-2">Start date</label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}
+                            <p class="text-sm text-emergency-red mt-2">{{ form.start_date.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-text-secondary mb-2">End date</label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}
+                            <p class="text-sm text-emergency-red mt-2">{{ form.end_date.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        {{ form.is_current }}
+                        <label class="text-sm text-text-secondary">I currently work here</label>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-text-secondary mb-2">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <p class="text-sm text-emergency-red mt-2">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    {% if form.non_field_errors %}
+                    <div class="rounded-3xl bg-emergency-red/10 border border-emergency-red/40 p-3 text-sm text-emergency-red">
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                    {% endif %}
+                    <button type="submit" class="inline-flex items-center gap-2 px-5 py-3 bg-accent-blue text-white rounded-xl text-sm font-semibold hover:bg-blue-600 transition-all">
+                        <i class="fa-solid fa-briefcase"></i> Add Experience
+                    </button>
+                </form>
+            </div>
+
+            <div class="rounded-3xl border border-border-subtle bg-bg-surface p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h2 class="text-xl font-bold text-text-primary">Experience Timeline</h2>
+                        <p class="text-sm text-text-secondary">Grouped by company for clearer career progression.</p>
+                    </div>
+                    <span class="inline-flex items-center rounded-full bg-accent-cyan/10 px-3 py-1 text-xs font-semibold text-accent-cyan">{{ experiences|length }} entries</span>
+                </div>
+                {% if experiences %}
+                <div class="space-y-8">
+                    {% regroup experiences by company as companies %}
+                    {% for company in companies %}
+                    <div class="relative pl-10">
+                        <!-- Dotted line for each company -->
+                        <div class="absolute inset-y-0 left-4 border-l-2 border-dashed border-text-muted/40"></div>
+                        <div class="space-y-6">
+                            <!-- Company Header -->
+                            <div class="mb-2">
+                                <p class="text-sm font-bold text-accent-cyan uppercase tracking-[0.05em]">{{ company.grouper }}</p>
+                            </div>
+                            
+                            <!-- Individual Experience Entries with Dots -->
+                            {% for exp in company.list %}
+                            <div class="relative">
+                                <!-- Dot -->
+                                <div class="absolute left-2 top-1 flex h-full items-start">
+                                    <span class="inline-flex h-4 w-4 rounded-full bg-accent-blue border-2 border-bg-navy shadow-sm"></span>
+                                </div>
+                                
+                                <!-- Content -->
+                                <div class="pl-8">
+                                    <!-- Date Range -->
+                                    <div class="text-xs font-semibold text-text-muted mb-1">
+                                        <span>{{ exp.start_date|date:"M Y" }}</span>
+                                        <span class="text-accent-cyan">
+                                            {% if exp.is_current %} - Present{% else %} - {{ exp.end_date|date:"M Y" }}{% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                        <div class="flex-1">
+                                            <p class="font-semibold text-text-primary">{{ exp.title }}</p>
+                                            {% if exp.description %}
+                                            <p class="text-sm text-text-secondary mt-2 whitespace-pre-line">{{ exp.description }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                                            <form method="post" action="{% url 'expert_experience_delete' exp.pk %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="text-sm text-emergency-red hover:text-red-600">Remove</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="rounded-3xl border border-border-subtle bg-bg-navy-hover p-8 text-center">
+                    <p class="text-text-secondary">No experience entries yet. Add your work history to build a stronger profile.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

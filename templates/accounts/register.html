@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-lg">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="w-14 h-14 mx-auto bg-accent-blue rounded-xl flex items-center justify-center mb-4">
+                <i class="fa-solid fa-user-plus text-white text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-text-primary">Join YONC</h1>
+            <p class="text-text-secondary mt-2">Become part of our Nepali community in Canada</p>
+        </div>
+        
+        <!-- Register Form -->
+        <div class="bg-bg-navy border border-border-subtle rounded-xl p-6 md:p-8">
+            <form id="register-form" method="post" action="{% url 'register' %}" class="space-y-5">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="rounded-2xl border border-emergency-red/20 bg-emergency-red/5 text-emergency-red p-4">
+                    <p class="font-semibold mb-2">Please fix the errors below.</p>
+                    <ul class="list-disc list-inside text-sm space-y-1">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- Name Row -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="id_first_name" class="block text-sm font-medium text-text-secondary mb-2">First Name</label>
+                        <input type="text" name="first_name" id="id_first_name" required
+                               value="{{ form.first_name.value|default_if_none:'' }}"
+                               class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-blue transition-colors"
+                               placeholder="First name">
+                    </div>
+                    <div>
+                        <label for="id_last_name" class="block text-sm font-medium text-text-secondary mb-2">Last Name</label>
+                        <input type="text" name="last_name" id="id_last_name" required
+                               value="{{ form.last_name.value|default_if_none:'' }}"
+                               class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-blue transition-colors"
+                               placeholder="Last name">
+                    </div>
+                </div>
+                
+                <!-- Username -->
+                <div>
+                    <label for="id_username" class="block text-sm font-medium text-text-secondary mb-2">Username</label>
+                    <input type="text" name="username" id="id_username" required
+                           value="{{ form.username.value|default_if_none:'' }}"
+                           class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-blue transition-colors"
+                           placeholder="Choose a username">
+                </div>
+                
+                <!-- Email -->
+                <div>
+                    <label for="id_email" class="block text-sm font-medium text-text-secondary mb-2">Email</label>
+                    <input type="email" name="email" id="id_email" required
+                           value="{{ form.email.value|default_if_none:'' }}"
+                           class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-blue transition-colors"
+                           placeholder="your@email.com">
+                </div>
+                
+                <!-- Phone -->
+                <div>
+                    <label for="id_phone_number" class="block text-sm font-medium text-text-secondary mb-2">Phone Number (optional)</label>
+                    <input type="tel" name="phone_number" id="id_phone_number"
+                           value="{{ form.phone_number.value|default_if_none:'' }}"
+                           class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-blue transition-colors"
+                           placeholder="+1 (555) 000-0000">
+                </div>
+                
+                <!-- Location Row -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="id_province" class="block text-sm font-medium text-text-secondary mb-2">Province</label>
+                        <select name="province" id="id_province" required
+                                class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary focus:outline-none focus:border-accent-blue transition-colors appearance-none">
+                            <option value="" disabled {% if not form.province.value %}selected{% endif %}>Select province</option>
+                            {% for code, name in provinces %}
+                            <option value="{{ code }}" {% if form.province.value == code %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="id_city" class="block text-sm font-medium text-text-secondary mb-2">City</label>
+                        <input type="text" name="city" id="id_city" required
+                               value="{{ form.city.value|default_if_none:'' }}"
+                               class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-blue transition-colors"
+                               placeholder="Your city">
+                    </div>
+                </div>
+                
+                <!-- Password -->
+                <div>
+                    <label for="id_password1" class="block text-sm font-medium text-text-secondary mb-2">Password</label>
+                    <input type="password" name="password1" id="id_password1" required
+                           class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-blue transition-colors"
+                           placeholder="Create a strong password">
+                    <p class="text-xs text-text-muted mt-1">Min 8 characters with letters and numbers</p>
+                </div>
+                
+                <!-- Confirm Password -->
+                <div>
+                    <label for="id_password2" class="block text-sm font-medium text-text-secondary mb-2">Confirm Password</label>
+                    <input type="password" name="password2" id="id_password2" required
+                           class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-blue transition-colors"
+                           placeholder="Confirm your password">
+                </div>
+                
+                <!-- Submit -->
+                <button type="submit"
+                        class="w-full py-3 bg-accent-blue hover:bg-blue-600 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-accent-blue/30">
+                    Create Account
+                </button>
+            </form>
+            
+            <!-- Divider -->
+            <div class="flex items-center my-6">
+                <div class="flex-1 border-t border-border-subtle"></div>
+                <span class="px-3 text-xs text-text-muted">or</span>
+                <div class="flex-1 border-t border-border-subtle"></div>
+            </div>
+            
+            <!-- Login Link -->
+            <p class="text-center text-sm text-text-secondary">
+                Already have an account? 
+                <a href="{% url 'login' %}" class="text-accent-blue hover:text-accent-cyan font-medium transition-colors">Sign In</a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

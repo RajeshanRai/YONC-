@@ -1,0 +1,79 @@
+{% load static %}
+<!-- Floating Chat Button -->
+<div class="fixed bottom-6 right-6 z-40">
+    <button onclick="toggleChatWidget()" id="chat-toggle-btn" 
+            class="w-14 h-14 rounded-full bg-accent-blue hover:bg-blue-600 text-white shadow-lg hover:shadow-xl transition-all flex items-center justify-center group">
+        <i class="fa-solid fa-comment-dots text-xl group-hover:scale-110 transition-transform"></i>
+        <span id="chat-unread-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-emergency-red rounded-full text-[10px] font-bold text-white flex items-center justify-center">0</span>
+    </button>
+</div>
+
+<!-- Chat Widget Panel -->
+<div id="chat-widget" class="fixed bottom-24 right-6 w-96 max-w-[calc(100vw-2rem)] bg-bg-navy border border-border-subtle rounded-2xl shadow-2xl z-40 hidden overflow-hidden flex flex-col" style="height: 500px; max-height: 70vh;">
+    
+    <!-- Chat Header -->
+    <div class="px-4 py-3 bg-bg-navy-hover border-b border-border-subtle flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-accent-blue flex items-center justify-center">
+                <i class="fa-solid fa-comments text-white text-sm"></i>
+            </div>
+            <div>
+                <h3 class="text-sm font-semibold text-text-primary">Messages</h3>
+                <p class="text-xs text-text-muted" id="chat-widget-subtitle">Your conversations</p>
+            </div>
+        </div>
+        <button onclick="toggleChatWidget()" class="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-surface transition-all">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    
+    <!-- Conversation List -->
+    <div id="chat-conversation-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+        <div class="flex flex-col items-center justify-center h-full text-center p-6" id="chat-empty-state">
+            <div class="w-16 h-16 rounded-full bg-bg-surface flex items-center justify-center mb-4">
+                <i class="fa-regular fa-comment-dots text-2xl text-text-muted"></i>
+            </div>
+            <p class="text-sm text-text-secondary mb-1">No conversations yet</p>
+            <p class="text-xs text-text-muted">Start chatting with an expert!</p>
+            <a href="{% url 'expert_list' %}" class="mt-4 px-4 py-2 bg-accent-blue hover:bg-blue-600 text-white text-xs font-medium rounded-lg transition-colors">
+                Find Experts
+            </a>
+        </div>
+    </div>
+    
+    <!-- Chat Messages Area (hidden by default) -->
+    <div id="chat-messages-area" class="hidden flex-1 flex flex-col">
+        <!-- Chat Header -->
+        <div class="px-4 py-2 bg-bg-navy-hover border-b border-border-subtle flex items-center gap-3">
+            <button onclick="showConversationList()" class="p-1 rounded-lg text-text-muted hover:text-text-primary transition-all">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <img id="chat-other-avatar" src="" alt="" class="w-8 h-8 rounded-full object-cover border border-border-subtle">
+            <div class="flex-1 min-w-0">
+                <p id="chat-other-name" class="text-sm font-medium text-text-primary truncate"></p>
+                <p id="chat-other-status" class="text-xs text-success-green">Online</p>
+            </div>
+            <a id="chat-view-profile" href="#" class="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-surface transition-all">
+                <i class="fa-solid fa-user"></i>
+            </a>
+        </div>
+        
+        <!-- Messages Container -->
+        <div id="chat-messages-container" class="flex-1 overflow-y-auto p-3 space-y-3">
+            <!-- Messages will be loaded here -->
+        </div>
+        
+        <!-- Input Area -->
+        <div class="p-3 border-t border-border-subtle bg-bg-navy">
+            <form id="chat-send-form" class="flex gap-2" onsubmit="return sendChatMessage(event)">
+                <input type="hidden" id="chat-receiver-id" value="">
+                <input type="text" id="chat-message-input" 
+                       class="flex-1 px-3 py-2 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted text-sm focus:outline-none focus:border-accent-blue transition-colors"
+                       placeholder="Type a message..." autocomplete="off">
+                <button type="submit" class="px-3 py-2 bg-accent-blue hover:bg-blue-600 text-white rounded-lg transition-colors">
+                    <i class="fa-solid fa-paper-plane text-sm"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

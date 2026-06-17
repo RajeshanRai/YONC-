@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<section class="bg-bg-void py-16 px-4">
+    <div class="max-w-6xl mx-auto space-y-16">
+        <div class="text-center">
+            <p class="text-sm uppercase tracking-[0.4em] text-accent-blue font-semibold">About Youth of Nepal in Canada</p>
+            <h1 class="mt-4 text-4xl md:text-5xl font-bold text-text-primary">We connect Nepali youth in Canada with trusted experts, community support, and meaningful resources.</h1>
+            <p class="mt-6 text-lg leading-relaxed text-text-secondary max-w-3xl mx-auto">
+                Youth of Nepal in Canada is a community-first platform built to help Nepali students, professionals, and families thrive across provinces. We bring together verified experts, trusted service partners, and local community guidance in one safe space.
+            </p>
+        </div>
+
+        <div class="grid gap-8 lg:grid-cols-2">
+            <div class="rounded-3xl bg-bg-surface border border-border-subtle p-8 shadow-sm">
+                <h2 class="text-2xl font-semibold text-text-primary mb-4">Who We Are</h2>
+                <p class="text-text-secondary leading-relaxed">
+                    We are a Canadian Nepali youth network dedicated to helping newcomers and long-term residents navigate life in Canada. Our members include students, professionals, and community advocates who need expert advice on everything from immigration to mental health.
+                </p>
+                <p class="text-text-secondary leading-relaxed mt-4">
+                    Our platform makes it easy to find qualified experts, trusted services, and emergency resources in every province. We help people connect, learn, and feel supported throughout their Canadian journey.
+                </p>
+            </div>
+            <div class="rounded-3xl bg-bg-surface border border-border-subtle p-8 shadow-sm">
+                <h2 class="text-2xl font-semibold text-text-primary mb-4">How We Started</h2>
+                <p class="text-text-secondary leading-relaxed">
+                    Youth of Nepal in Canada began as a small community initiative to support Nepali students and families when they first arrive. We saw a need for better guidance, trusted experts, and accessible support across provinces, so we built a platform to bring it all together.
+                </p>
+                <p class="text-text-secondary leading-relaxed mt-4">
+                    Over time, we grew into a larger network of experts, community partners, and users who share the same mission: help Nepali youth in Canada feel confident, informed, and connected.
+                </p>
+            </div>
+        </div>
+
+        <div class="rounded-3xl bg-bg-surface border border-border-subtle p-8 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-semibold text-text-primary">Our Partners</h2>
+                    <p class="text-text-secondary mt-2 max-w-2xl">
+                        We work with expert advisors, student support groups, community organizations, and service providers across Canada to create a trusted support network for Nepali youth.
+                    </p>
+                </div>
+                <a href="#connect" class="inline-flex items-center gap-2 px-5 py-3 bg-accent-blue hover:bg-blue-600 text-white rounded-xl font-medium transition-all">
+                    Connect With Us
+                </a>
+            </div>
+
+            <div class="mt-8">
+                <h3 class="text-xl font-semibold text-text-primary">Partner Showcase</h3>
+                <p class="text-text-secondary mt-2 max-w-2xl">We proudly collaborate with Nepali organizations and businesses across Canada that support our community.</p>
+
+                <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    {% for partner in partners %}
+                    <div class="rounded-3xl bg-bg-surface border border-border-subtle p-6 text-center">
+                        {% if partner.logo %}
+                        <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" class="mx-auto h-20 w-20 object-contain">
+                        {% else %}
+                        <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 text-slate-500">Logo</div>
+                        {% endif %}
+                        <p class="mt-4 text-sm font-semibold text-text-primary">{{ partner.name }}</p>
+                        {% if partner.website %}
+                        <p class="text-text-secondary mt-2 text-xs">Website: <a href="{{ partner.website }}" target="_blank" rel="noopener noreferrer" class="text-accent-blue hover:text-accent-cyan">{{ partner.website }}</a></p>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="rounded-3xl bg-bg-surface border border-border-subtle p-6 text-center col-span-4">
+                        <p class="text-text-primary">No partners have been added yet. Add them in the admin dashboard to show them here.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

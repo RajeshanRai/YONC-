@@ -1,0 +1,84 @@
+{% load static %}
+<footer class="bg-bg-navy border-t border-border-subtle mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Brand -->
+            <div class="col-span-1 md:col-span-1">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 bg-accent-blue rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-mountain-sun text-white text-lg"></i>
+                    </div>
+                    <span class="text-lg font-bold text-text-primary">YONC+</span>
+                </div>
+                <p class="text-sm text-text-secondary leading-relaxed">
+                    Connecting Nepali youth across Canada with trusted experts and community resources.
+                </p>
+                <div class="flex gap-3 mt-4">
+                    <a href="#" class="w-8 h-8 rounded-lg bg-bg-surface flex items-center justify-center text-text-muted hover:text-accent-blue hover:bg-bg-navy-hover transition-all">
+                        <i class="fa-brands fa-facebook-f text-sm"></i>
+                    </a>
+                    <a href="#" class="w-8 h-8 rounded-lg bg-bg-surface flex items-center justify-center text-text-muted hover:text-accent-blue hover:bg-bg-navy-hover transition-all">
+                        <i class="fa-brands fa-instagram text-sm"></i>
+                    </a>
+                    <a href="#" class="w-8 h-8 rounded-lg bg-bg-surface flex items-center justify-center text-text-muted hover:text-accent-blue hover:bg-bg-navy-hover transition-all">
+                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div>
+                <h3 class="text-sm font-semibold text-text-primary uppercase tracking-wider mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'home' %}" class="text-sm text-text-secondary hover:text-accent-blue transition-colors">Home</a></li>
+                    <li><a href="{% url 'about' %}" class="text-sm text-text-secondary hover:text-accent-blue transition-colors">About</a></li>
+                    <li><a href="{% url 'expert_list' %}" class="text-sm text-text-secondary hover:text-accent-blue transition-colors">Find Experts</a></li>
+                    <li><a href="{% url 'category_list' %}" class="text-sm text-text-secondary hover:text-accent-blue transition-colors">Services</a></li>
+                    <li><a href="{% url 'apply_expert' %}" class="text-sm text-text-secondary hover:text-accent-blue transition-colors">Become an Expert</a></li>
+                </ul>
+            </div>
+            
+            <!-- Services -->
+            <div>
+                <h3 class="text-sm font-semibold text-text-primary uppercase tracking-wider mb-4">Services</h3>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'expert_list_by_category' 'accounting-tax' %}" class="text-sm text-text-secondary hover:text-accent-blue transition-colors">Accounting & Tax</a></li>
+                    <li><a href="{% url 'expert_list_by_category' 'it-technology' %}" class="text-sm text-text-secondary hover:text-accent-blue transition-colors">IT & Technology</a></li>
+                    <li><a href="{% url 'expert_list_by_category' 'legal-services' %}" class="text-sm text-text-secondary hover:text-accent-blue transition-colors">Legal Services</a></li>
+                    <li><a href="{% url 'expert_list_by_category' 'counselling-mental-health' %}" class="text-sm text-text-secondary hover:text-accent-blue transition-colors">Counselling</a></li>
+                    <li><a href="{% url 'expert_list_by_category' 'emergency-contacts' %}" class="text-sm text-text-secondary hover:text-accent-blue transition-colors">Emergency Contacts</a></li>
+                </ul>
+            </div>
+            
+            <!-- Contact -->
+            <div>
+                <h3 class="text-sm font-semibold text-text-primary uppercase tracking-wider mb-4">Contact</h3>
+                <ul class="space-y-2">
+                    <li class="flex items-start gap-2 text-sm text-text-secondary">
+                        <i class="fa-solid fa-envelope mt-1 text-text-muted"></i>
+                        <span>info@yonc.ca</span>
+                    </li>
+                    <li class="flex items-start gap-2 text-sm text-text-secondary">
+                        <i class="fa-solid fa-phone mt-1 text-text-muted"></i>
+                        <span>+1 (800) YON-CANADA</span>
+                    </li>
+                    <li class="flex items-start gap-2 text-sm text-text-secondary">
+                        <i class="fa-solid fa-location-dot mt-1 text-text-muted"></i>
+                        <span>Serving all provinces across Canada</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="border-t border-border-subtle mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-xs text-text-muted">
+                &copy; {% now "Y" %} Youth of Nepal in Canada. All rights reserved.
+            </p>
+            <div class="flex gap-4">
+                <a href="#" class="text-xs text-text-muted hover:text-text-secondary transition-colors">Privacy Policy</a>
+                <a href="#" class="text-xs text-text-muted hover:text-text-secondary transition-colors">Terms of Service</a>
+                <a href="#" class="text-xs text-text-muted hover:text-text-secondary transition-colors">Community Guidelines</a>
+            </div>
+        </div>
+    </div>
+</footer>

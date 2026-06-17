@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-8 px-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row gap-6">
+            
+            <!-- Sidebar -->
+            <div class="w-full lg:w-64 flex-shrink-0">
+                <div class="bg-bg-navy border border-border-subtle rounded-xl p-4 sticky top-20">
+                    <div class="flex items-center gap-3 mb-6 px-2">
+                        <div class="w-10 h-10 bg-emergency-red/10 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-shield-halved text-emergency-red"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-sm font-semibold text-text-primary">Admin Panel</h2>
+                            <p class="text-xs text-text-muted">Management</p>
+                        </div>
+                    </div>
+                    
+                    <nav class="space-y-1">
+                        <a href="{% url 'dashboard_home' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all {% if request.path == '/dashboard/' %}bg-accent-blue/10 text-accent-blue{% else %}text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover{% endif %}">
+                            <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                            Dashboard
+                        </a>
+                        <a href="{% url 'manage_experts' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all {% if '/dashboard/experts/' in request.path %}bg-accent-blue/10 text-accent-blue{% else %}text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover{% endif %}">
+                            <i class="fa-solid fa-user-tie w-5 text-center"></i>
+                            Experts
+                        </a>
+                        <a href="{% url 'manage_applications' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all {% if '/dashboard/applications/' in request.path %}bg-accent-blue/10 text-accent-blue{% else %}text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover{% endif %}">
+                            <i class="fa-solid fa-clipboard-list w-5 text-center"></i>
+                            Applications
+                        </a>
+                        <a href="{% url 'manage_users' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all {% if '/dashboard/users/' in request.path %}bg-accent-blue/10 text-accent-blue{% else %}text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover{% endif %}">
+                            <i class="fa-solid fa-users w-5 text-center"></i>
+                            Users
+                        </a>
+                        <a href="{% url 'manage_partners' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all {% if '/dashboard/partners/' in request.path %}bg-accent-blue/10 text-accent-blue{% else %}text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover{% endif %}">
+                            <i class="fa-solid fa-handshake-angle w-5 text-center"></i>
+                            Partners
+                        </a>
+                        <a href="{% url 'manage_events' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all {% if '/dashboard/events/' in request.path %}bg-accent-blue/10 text-accent-blue{% else %}text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover{% endif %}">
+                            <i class="fa-solid fa-calendar-days w-5 text-center"></i>
+                            Events
+                        </a>
+                        <a href="{% url 'manage_messages' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all {% if '/dashboard/messages/' in request.path %}bg-accent-blue/10 text-accent-blue{% else %}text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover{% endif %}">
+                            <i class="fa-solid fa-comments w-5 text-center"></i>
+                            Messages
+                        </a>
+                        <a href="{% url 'manage_contacts' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all {% if '/dashboard/contacts/' in request.path %}bg-accent-blue/10 text-accent-blue{% else %}text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover{% endif %}">
+                            <i class="fa-solid fa-envelope w-5 text-center"></i>
+                            Contacts
+                        </a>
+                    </nav>
+                    
+                    <div class="border-t border-border-subtle mt-4 pt-4">
+                        <a href="{% url 'home' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover transition-all">
+                            <i class="fa-solid fa-arrow-left w-5 text-center"></i>
+                            Back to Site
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="flex-1 min-w-0">
+                {% block dashboard_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

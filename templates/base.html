@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} | Youth of Nepal in Canada</title>
+    
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'bg-void': '#F8FAFC',
+                        'bg-navy': '#E2E8F0',
+                        'bg-navy-hover': '#CBD5E1',
+                        'bg-surface': '#FFFFFF',
+                        'accent-blue': '#2563EB',
+                        'accent-cyan': '#0EA5E9',
+                        'text-primary': '#0F172A',
+                        'text-secondary': '#475569',
+                        'text-muted': '#64748B',
+                        'border-subtle': '#CBD5E1',
+                        'emergency-red': '#DC2626',
+                        'success-green': '#16A34A',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="font-inter bg-bg-void text-text-primary min-h-screen flex flex-col">
+    
+    <!-- Navigation -->
+    {% include 'partials/navbar.html' %}
+    
+    <!-- Message Popups -->
+    <div id="message-container" class="fixed top-4 right-4 z-50 flex flex-col gap-3 items-end pointer-events-none"></div>
+    
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    {% include 'partials/footer.html' %}
+    
+    <!-- Chat Widget (for logged in users) -->
+    {% if user.is_authenticated %}
+    {% include 'partials/chat_widget.html' %}
+    {% endif %}
+    
+    <!-- JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% if messages %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% for message in messages %}
+        appAlert('{{ message|escapejs }}', '{{ message.tags|default:'info' }}');
+        {% endfor %}
+    });
+    </script>
+    {% endif %}
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-5xl mx-auto space-y-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <p class="text-sm uppercase tracking-[0.3em] text-accent-cyan font-semibold mb-2">Availability</p>
+                <h1 class="text-3xl font-bold text-text-primary">Manage Your Appointment Slots</h1>
+                <p class="text-text-secondary mt-2">Add or remove open time slots so users can book consultations with you.</p>
+            </div>
+            <a href="{% url 'expert_dashboard' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-bg-surface border border-border-subtle text-sm text-text-primary hover:border-accent-blue transition-all">
+                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-2">
+            <div class="rounded-3xl border border-border-subtle bg-bg-surface p-6 shadow-sm">
+                <h2 class="text-xl font-bold text-text-primary mb-4">Add a New Time Slot</h2>
+                <form method="post" class="space-y-5">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-semibold text-text-secondary mb-2">Start time</label>
+                        {{ form.start_time }}
+                        {% if form.start_time.errors %}
+                        <p class="text-sm text-emergency-red mt-2">{{ form.start_time.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-text-secondary mb-2">End time</label>
+                        {{ form.end_time }}
+                        {% if form.end_time.errors %}
+                        <p class="text-sm text-emergency-red mt-2">{{ form.end_time.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    {% if form.non_field_errors %}
+                        <div class="rounded-2xl bg-emergency-red/10 border border-emergency-red/40 p-3 text-sm text-emergency-red">
+                            {{ form.non_field_errors.0 }}
+                        </div>
+                    {% endif %}
+                    <button type="submit" class="inline-flex items-center gap-2 px-5 py-3 bg-accent-blue text-white rounded-xl text-sm font-semibold hover:bg-blue-600 transition-all">
+                        <i class="fa-solid fa-calendar-plus"></i> Add Availability
+                    </button>
+                </form>
+            </div>
+
+            <div class="rounded-3xl border border-border-subtle bg-bg-surface p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h2 class="text-xl font-bold text-text-primary">Current Time Slots</h2>
+                        <p class="text-sm text-text-secondary">These slots are visible to users until they are booked.</p>
+                    </div>
+                </div>
+                {% if slots %}
+                <div class="space-y-4">
+                    {% for slot in slots %}
+                    <div class="rounded-3xl border border-border-subtle bg-bg-navy-hover p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                            <p class="text-sm text-text-muted">{{ slot.get_display_window }}</p>
+                            <p class="text-sm text-text-secondary mt-1">Created {{ slot.created_at|date:'M d, Y' }}</p>
+                        </div>
+                        <form method="post" action="{% url 'expert_availability_delete' slot.pk %}" class="flex items-center gap-3">
+                            {% csrf_token %}
+                            <button type="submit" class="px-4 py-2 rounded-full bg-emergency-red text-white text-sm hover:bg-red-600 transition-all">Remove</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="rounded-3xl border border-border-subtle bg-bg-navy-hover p-8 text-center">
+                    <p class="text-text-secondary">No available slots yet. Add your first slot to let users book time with you.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

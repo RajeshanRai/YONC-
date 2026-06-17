@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-bg-surface rounded-3xl border border-border-subtle p-8 shadow-sm">
+            <h1 class="text-3xl font-bold text-text-primary mb-4">Edit Forum Post</h1>
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">Category</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                    <p class="text-emergency-red text-sm mt-1">{{ form.category.errors }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">Title</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                    <p class="text-emergency-red text-sm mt-1">{{ form.title.errors }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">Content</label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                    <p class="text-emergency-red text-sm mt-1">{{ form.content.errors }}</p>
+                    {% endif %}
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="px-6 py-3 bg-accent-blue hover:bg-blue-600 text-white rounded-full text-sm font-semibold transition-all">Save Changes</button>
+                    <a href="{% url 'community:post_detail' pk=post.pk %}" class="px-6 py-3 border rounded-full text-sm">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

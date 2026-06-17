@@ -1,0 +1,207 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% load dashboard_filters %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 hover:border-accent-blue/30 transition-all">
+        <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 bg-accent-blue/10 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-users text-accent-blue"></i>
+            </div>
+            <span class="text-xs text-text-muted">Total</span>
+        </div>
+        <p class="text-2xl font-bold text-text-primary">{{ stats.total_users }}</p>
+        <p class="text-xs text-text-muted mt-1">Active Users</p>
+    </div>
+    
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 hover:border-accent-blue/30 transition-all">
+        <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 bg-success-green/10 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-user-tie text-success-green"></i>
+            </div>
+            <span class="text-xs text-text-muted">Total</span>
+        </div>
+        <p class="text-2xl font-bold text-text-primary">{{ stats.total_experts }}</p>
+        <p class="text-xs text-text-muted mt-1">Approved Experts</p>
+    </div>
+    
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 hover:border-accent-blue/30 transition-all">
+        <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-clock text-yellow-500"></i>
+            </div>
+            <span class="text-xs text-text-muted">Pending</span>
+        </div>
+        <p class="text-2xl font-bold text-text-primary">{{ stats.pending_applications }}</p>
+        <p class="text-xs text-text-muted mt-1">Applications</p>
+    </div>
+    
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 hover:border-accent-blue/30 transition-all">
+        <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 bg-accent-cyan/10 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-comment-dots text-accent-cyan"></i>
+            </div>
+            <span class="text-xs text-text-muted">Today</span>
+        </div>
+        <p class="text-2xl font-bold text-text-primary">{{ stats.total_messages_today }}</p>
+        <p class="text-xs text-text-muted mt-1">Messages</p>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Applications Chart -->
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-6">
+        <h3 class="text-sm font-semibold text-text-primary mb-4">Expert Applications (Last 7 Days)</h3>
+        <canvas id="applicationsChart" height="200"></canvas>
+    </div>
+    
+    <!-- Messages Chart -->
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-6">
+        <h3 class="text-sm font-semibold text-text-primary mb-4">Messages Activity (Last 7 Days)</h3>
+        <canvas id="messagesChart" height="200"></canvas>
+    </div>
+</div>
+
+<!-- Category Distribution -->
+<div class="bg-bg-navy border border-border-subtle rounded-xl p-6 mb-8">
+    <h3 class="text-sm font-semibold text-text-primary mb-4">Experts by Category</h3>
+    <div class="space-y-3">
+        {% for cat in category_stats %}
+        <div class="flex items-center gap-4">
+            <span class="text-sm text-text-secondary w-40 truncate flex-shrink-0">{{ cat.name }}</span>
+            <div class="flex-1 h-6 bg-bg-surface rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-500" 
+                     style="width: {% if cat.expert_count > 0 %}{{ cat.expert_count|percentage:stats.total_experts }}{% else %}0{% endif %}%; background-color: {{ cat.color }};"></div>
+            </div>
+            <span class="text-sm font-medium text-text-primary w-8 text-right flex-shrink-0">{{ cat.expert_count }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Recent Users -->
+    <div class="bg-bg-navy border border-border-subtle rounded-xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-border-subtle flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-text-primary">Recent Users</h3>
+            <a href="{% url 'manage_users' %}" class="text-xs text-accent-blue hover:text-accent-cyan transition-colors">View All</a>
+        </div>
+        <div class="divide-y divide-border-subtle">
+            {% for u in recent_users %}
+            <div class="px-6 py-3 flex items-center gap-3 hover:bg-bg-navy-hover transition-colors">
+                {% if u.profile_picture and u.profile_picture.url != '/media/' %}
+                <img src="{{ u.profile_picture.url }}" alt="" class="w-8 h-8 rounded-full object-cover">
+                {% else %}
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-accent-blue to-accent-cyan flex items-center justify-center">
+                    <span class="text-xs font-bold text-white">{{ u.first_name.0|default:u.username.0|upper }}</span>
+                </div>
+                {% endif %}
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-text-primary truncate">{{ u.get_full_name_display }}</p>
+                    <p class="text-xs text-text-muted">{{ u.get_role_display }}</p>
+                </div>
+                <span class="text-xs text-text-muted">{{ u.date_joined|timesince }} ago</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Recent Applications -->
+    <div class="bg-bg-navy border border-border-subtle rounded-xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-border-subtle flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-text-primary">Recent Applications</h3>
+            <a href="{% url 'manage_applications' %}" class="text-xs text-accent-blue hover:text-accent-cyan transition-colors">View All</a>
+        </div>
+        <div class="divide-y divide-border-subtle">
+            {% for app in recent_applications %}
+            <div class="px-6 py-3 flex items-center gap-3 hover:bg-bg-navy-hover transition-colors">
+                <div class="w-8 h-8 rounded-full bg-bg-surface flex items-center justify-center">
+                    <i class="fa-solid fa-clipboard text-xs text-text-muted"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-text-primary truncate">{{ app.user.get_full_name_display }}</p>
+                    <p class="text-xs text-text-muted">{{ app.category.name }}</p>
+                </div>
+                <span class="px-2 py-0.5 text-[10px] font-medium rounded-md 
+                    {% if app.status == 'approved' %}bg-success-green/10 text-success-green
+                    {% elif app.status == 'pending' %}bg-yellow-500/10 text-yellow-500
+                    {% else %}bg-emergency-red/10 text-emergency-red{% endif %}">
+                    {{ app.get_status_display }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Applications Chart
+const appCtx = document.getElementById('applicationsChart').getContext('2d');
+const appLabels = {{ applications_by_day|safe }}.map(d => {
+    const date = new Date(d.date);
+    return date.toLocaleDateString('en', { weekday: 'short' });
+});
+const appData = {{ applications_by_day|safe }}.map(d => d.count);
+
+new Chart(appCtx, {
+    type: 'line',
+    data: {
+        labels: appLabels,
+        datasets: [{
+            label: 'Applications',
+            data: appData,
+            borderColor: '#2563EB',
+            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: '#2563EB',
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#CBD5E1' }, ticks: { color: '#475569' } },
+            x: { grid: { display: false }, ticks: { color: '#475569' } }
+        }
+    }
+});
+
+// Messages Chart
+const msgCtx = document.getElementById('messagesChart').getContext('2d');
+const msgLabels = {{ messages_by_day|safe }}.map(d => {
+    const date = new Date(d.date);
+    return date.toLocaleDateString('en', { weekday: 'short' });
+});
+const msgData = {{ messages_by_day|safe }}.map(d => d.count);
+
+new Chart(msgCtx, {
+    type: 'bar',
+    data: {
+        labels: msgLabels,
+        datasets: [{
+            label: 'Messages',
+            data: msgData,
+            backgroundColor: '#38BDF8',
+            borderRadius: 6,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#CBD5E1' }, ticks: { color: '#475569' } },
+            x: { grid: { display: false }, ticks: { color: '#475569' } }
+        }
+    }
+});
+</script>
+
+{% endblock %}

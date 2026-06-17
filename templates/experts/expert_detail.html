@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-4xl mx-auto">
+        
+        <!-- Back Link -->
+        <a href="{% url 'expert_list' %}" class="text-sm text-text-muted hover:text-text-secondary transition-colors inline-flex items-center gap-1 mb-6">
+            <i class="fa-solid fa-arrow-left text-xs"></i> Back to Experts
+        </a>
+        
+        <!-- Profile Card -->
+        <div class="bg-bg-navy border border-border-subtle rounded-xl overflow-hidden">
+            <!-- Cover -->
+            <div class="h-40 bg-gradient-to-r from-accent-blue/20 via-accent-cyan/10 to-bg-navy"></div>
+            
+            <!-- Profile Info -->
+            <div class="px-6 md:px-8 pb-8 -mt-16 relative">
+                <div class="flex flex-col md:flex-row items-start md:items-end gap-6">
+                    <!-- Avatar -->
+                    <div class="relative flex-shrink-0">
+                        {% if expert.user.profile_picture and expert.user.profile_picture.url != '/media/' %}
+                        <img src="{{ expert.user.profile_picture.url }}" alt="{{ expert.user.get_full_name_display }}" 
+                             class="w-32 h-32 rounded-full object-cover border-4 border-bg-navy shadow-xl">
+                        {% else %}
+                        <div class="w-32 h-32 rounded-full bg-gradient-to-br from-accent-blue to-accent-cyan flex items-center justify-center border-4 border-bg-navy shadow-xl">
+                            <span class="text-4xl font-bold text-white">{{ expert.get_initials }}</span>
+                        </div>
+                        {% endif %}
+                        {% if expert.is_available %}
+                        <span class="absolute bottom-2 right-2 w-5 h-5 bg-success-green border-2 border-bg-navy rounded-full" title="Available for consultation"></span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Info -->
+                    <div class="flex-1 pb-2">
+                        <div class="flex flex-wrap items-center gap-3 mb-2">
+                            <h1 class="text-2xl md:text-3xl font-bold text-text-primary">{{ expert.user.get_full_name_display }}</h1>
+                            {% if expert.is_featured %}
+                            <span class="px-2 py-0.5 text-xs font-medium bg-accent-cyan/10 text-accent-cyan rounded-md">
+                                <i class="fa-solid fa-star mr-1"></i>Top Expert
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="flex flex-wrap items-center gap-3 text-sm">
+                            <span class="px-2.5 py-1 text-xs font-medium rounded-md" style="background-color: {{ expert.category.color }}20; color: {{ expert.category.color }};">
+                                <i class="{{ expert.category.icon_class }} mr-1"></i>{{ expert.category.name }}
+                            </span>
+                            <span class="flex items-center gap-1 text-text-muted">
+                                <i class="fa-solid fa-location-dot text-xs"></i>
+                                {{ expert.city }}, {{ expert.get_province_display }}
+                            </span>
+                            <span class="flex items-center gap-1 text-text-muted">
+                                <i class="fa-solid fa-briefcase text-xs"></i>
+                                {{ expert.get_total_years_experience }} years experience
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="flex flex-col sm:flex-row gap-2 mt-4 md:mt-0">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'start_chat' expert.pk %}" 
+                           class="px-5 py-2.5 bg-accent-blue hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            Message
+                        </a>
+                        {% else %}
+                        <a href="{% url 'login' %}?next={% url 'expert_detail' expert.pk %}" 
+                           class="px-5 py-2.5 bg-accent-blue hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            Message
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 px-6 md:px-8 pb-8">
+                <!-- Main Content -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- About -->
+                    <div class="bg-bg-navy-hover/50 rounded-xl p-6 border border-border-subtle/50">
+                        <h2 class="text-lg font-semibold text-text-primary mb-4">About</h2>
+                        <p class="text-sm text-text-secondary leading-relaxed whitespace-pre-line">{{ expert.bio|default:"No detailed biography provided yet." }}</p>
+                    </div>
+                    
+                    <!-- Experience -->
+                    <div class="bg-bg-navy-hover/50 rounded-xl p-6 border border-border-subtle/50">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                            <div>
+                                <h2 class="text-lg font-semibold text-text-primary">Experience</h2>
+                                <p class="text-sm text-text-secondary">{{ expert.get_total_years_experience }} {{ expert.get_total_years_experience|pluralize:"year,years" }} of professional experience in {{ expert.category.name }}.</p>
+                            </div>
+                            {% if expert.available_hours %}
+                            <span class="inline-flex items-center rounded-full bg-success-green/10 px-3 py-1.5 text-xs font-semibold text-success-green border border-success-green/30">
+                                <i class="fa-solid fa-clock mr-2"></i>{{ expert.available_hours }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% if experiences %}
+                        <div class="space-y-8">
+                            {% regroup experiences by company as companies %}
+                            {% for company in companies %}
+                            <div class="relative pl-10">
+                                <!-- Dotted line for each company -->
+                                <div class="absolute inset-y-0 left-4 border-l-2 border-dashed border-text-muted/40"></div>
+                                <div class="space-y-6">
+                                    <!-- Company Header -->
+                                    <div class="mb-2">
+                                        <p class="text-sm font-bold text-accent-cyan uppercase tracking-[0.05em]">{{ company.grouper }}</p>
+                                    </div>
+                                    
+                                    <!-- Individual Experience Entries with Dots -->
+                                    {% for exp in company.list %}
+                                    <div class="relative">
+                                        <!-- Dot -->
+                                        <div class="absolute left-2 top-1 flex h-full items-start">
+                                            <span class="inline-flex h-4 w-4 rounded-full bg-accent-blue border-2 border-bg-navy shadow-sm"></span>
+                                        </div>
+                                        
+                                        <!-- Content -->
+                                        <div class="pl-8">
+                                            <!-- Date Range -->
+                                            <div class="text-xs font-semibold text-text-muted mb-1">
+                                                <span>{{ exp.start_date|date:"M Y" }}</span>
+                                                <span class="text-accent-cyan">
+                                                    {% if exp.is_current %} - Present{% else %} - {{ exp.end_date|date:"M Y" }}{% endif %}
+                                                </span>
+                                            </div>
+                                            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                                <div class="flex-1">
+                                                    <p class="font-semibold text-text-primary">{{ exp.title }}</p>
+                                                    {% if exp.description %}
+                                                    <p class="text-sm text-text-secondary mt-2 whitespace-pre-line">{{ exp.description }}</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-sm text-text-secondary">No experience entries are available for this expert yet.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Qualifications -->
+                    {% if expert.qualifications %}
+                    <div class="bg-bg-navy-hover/50 rounded-xl p-6 border border-border-subtle/50">
+                        <h2 class="text-lg font-semibold text-text-primary mb-4">Qualifications</h2>
+                        <div class="text-sm text-text-secondary leading-relaxed whitespace-pre-line">{{ expert.qualifications|linebreaksbr }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Specialties -->
+                    {% with specialties=expert.get_specialties_list %}
+                    {% if specialties %}
+                    <div class="bg-bg-navy-hover/50 rounded-xl p-6 border border-border-subtle/50">
+                        <h2 class="text-lg font-semibold text-text-primary mb-4">Specialties</h2>
+                        <div class="flex flex-wrap gap-2">
+                            {% for specialty in specialties %}
+                            <span class="px-3 py-1.5 text-sm bg-bg-surface text-text-secondary rounded-lg border border-border-subtle">{{ specialty }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Stats -->
+                    <div class="bg-bg-navy-hover/50 rounded-xl p-6 border border-border-subtle/50">
+                        <h2 class="text-sm font-semibold text-text-primary mb-4 uppercase tracking-wider">Stats</h2>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-text-muted">Member Since</span>
+                                <span class="text-sm font-medium text-text-primary">{{ expert.user.date_joined|date:"M Y" }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-text-muted">Consultations</span>
+                                <span class="text-sm font-medium text-text-primary">{{ expert.total_consultations }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-text-muted">Rating</span>
+                                <span class="text-sm font-medium text-text-primary">
+                                    <i class="fa-solid fa-star text-yellow-500 text-xs"></i> {{ expert.rating }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-text-muted">Reviews</span>
+                                <span class="text-sm font-medium text-text-primary">{{ expert.total_reviews }}</span>
+                            </div>
+                            {% if expert.available_hours %}
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-text-muted">Availability</span>
+                                <span class="text-sm font-medium text-success-green">{{ expert.available_hours }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Info -->
+                    {% if user.is_authenticated %}
+                    <div class="bg-bg-navy-hover/50 rounded-xl p-6 border border-border-subtle/50">
+                        <h2 class="text-sm font-semibold text-text-primary mb-4 uppercase tracking-wider">Contact</h2>
+                        <div class="space-y-3">
+                            {% if expert.phone_number %}
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-phone text-accent-blue w-4"></i>
+                                <a href="tel:{{ expert.phone_number }}" class="text-sm text-text-secondary hover:text-accent-blue transition-colors">{{ expert.phone_number }}</a>
+                            </div>
+                            {% endif %}
+                            {% if expert.email_public %}
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-envelope text-accent-blue w-4"></i>
+                                <a href="mailto:{{ expert.email_public }}" class="text-sm text-text-secondary hover:text-accent-blue transition-colors">{{ expert.email_public }}</a>
+                            </div>
+                            {% endif %}
+                            {% if expert.website %}
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-globe text-accent-blue w-4"></i>
+                                <a href="{{ expert.website }}" target="_blank" class="text-sm text-text-secondary hover:text-accent-blue transition-colors truncate">{{ expert.website }}</a>
+                            </div>
+                            {% endif %}
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-location-dot text-accent-blue w-4"></i>
+                                <span class="text-sm text-text-secondary">{{ expert.city }}, {{ expert.get_province_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="bg-accent-blue/5 border border-accent-blue/20 rounded-xl p-6 text-center">
+                        <i class="fa-solid fa-lock text-accent-blue text-xl mb-3"></i>
+                        <p class="text-sm text-text-secondary mb-4">Sign in to view contact information and message this expert.</p>
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="inline-block px-5 py-2 bg-accent-blue hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-all">
+                            Sign In
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Slots -->
+        <div class="mt-10">
+            <div class="bg-bg-surface rounded-3xl border border-border-subtle p-6 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="text-xl font-semibold text-text-primary">Book a Consultation</h2>
+                        <p class="text-sm text-text-muted mt-1">Reserve a time slot with this expert for advice, guidance, or support.</p>
+                    </div>
+                    {% if available_slots_count %}
+                    <span class="inline-flex items-center rounded-full bg-accent-blue/10 px-3 py-1 text-xs font-semibold text-accent-blue">
+                        {{ available_slots_count }} available slot{{ available_slots_count|pluralize }}
+                    </span>
+                    {% endif %}
+                </div>
+                {% if available_slots %}
+                <div class="space-y-4">
+                    {% for slot in available_slots %}
+                    <div class="rounded-3xl border border-border-subtle p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-text-primary">{{ slot.start_time|date:'M d, Y' }} · {{ slot.start_time|time:'h:i A' }} - {{ slot.end_time|time:'h:i A' }}</p>
+                            <p class="text-xs text-text-muted">Available now</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'appointments:book_appointment' slot.pk %}" class="px-4 py-2 bg-accent-blue hover:bg-blue-600 text-white rounded-full text-sm font-medium transition-all">Book Slot</a>
+                            {% else %}
+                            <a href="{% url 'login' %}?next={% url 'appointments:book_appointment' slot.pk %}" class="px-4 py-2 bg-accent-blue hover:bg-blue-600 text-white rounded-full text-sm font-medium transition-all">Sign in to Book</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="rounded-3xl border border-border-subtle p-6 text-center">
+                    {% if next_available_slot %}
+                    <p class="text-sm font-semibold text-text-primary mb-2">Next available opening: {{ next_available_slot.start_time|date:'M d, Y' }} at {{ next_available_slot.start_time|time:'h:i A' }}.</p>
+                    {% endif %}
+                    <p class="text-text-secondary">
+                        No open consultation slots are currently available.
+                        {% if has_conversation %}
+                            You can still message the expert to request a suitable time.
+                        {% else %}
+                            Message the expert to ask when they are free.
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Related Experts -->
+        {% if related_experts %}
+        <div class="mt-10">
+            <h2 class="text-xl font-semibold text-text-primary mb-6">More {{ expert.category.name }} Experts</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {% for related in related_experts %}
+                <a href="{% url 'expert_detail' related.pk %}" class="group bg-bg-navy border border-border-subtle rounded-xl p-4 hover:border-accent-blue/50 transition-all">
+                    <div class="flex items-center gap-3">
+                        {% if related.user.profile_picture and related.user.profile_picture.url != '/media/' %}
+                        <img src="{{ related.user.profile_picture.url }}" alt="" class="w-12 h-12 rounded-full object-cover">
+                        {% else %}
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-accent-blue to-accent-cyan flex items-center justify-center">
+                            <span class="text-sm font-bold text-white">{{ related.get_initials }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-text-primary truncate group-hover:text-accent-cyan transition-colors">{{ related.user.get_full_name_display }}</p>
+                            <p class="text-xs text-text-muted">{{ related.city }}</p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

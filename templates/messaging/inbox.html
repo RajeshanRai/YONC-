@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-4xl mx-auto">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-text-primary">Messages</h1>
+                <p class="text-text-secondary text-sm mt-1">
+                    {% if total_unread > 0 %}
+                    <span class="text-accent-cyan font-medium">{{ total_unread }} unread message{{ total_unread|pluralize }}</span>
+                    {% else %}
+                    Your conversations
+                    {% endif %}
+                </p>
+            </div>
+            <a href="{% url 'expert_list' %}" class="px-4 py-2 bg-accent-blue hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-all">
+                <i class="fa-solid fa-plus mr-1"></i>New Chat
+            </a>
+        </div>
+        
+        <!-- Conversations List -->
+        {% if conversations %}
+        <div class="bg-bg-navy border border-border-subtle rounded-xl overflow-hidden">
+            {% for item in conversations %}
+            <a href="{% url 'chat_view' item.other_user.id %}" 
+               class="flex items-center gap-4 p-4 hover:bg-bg-navy-hover transition-all border-b border-border-subtle last:border-0 group {% if item.unread_count > 0 %}bg-accent-blue/5{% endif %}">
+                <!-- Avatar -->
+                <div class="relative flex-shrink-0">
+                    {% if item.other_user.profile_picture and item.other_user.profile_picture.url != '/media/' %}
+                    <img src="{{ item.other_user.profile_picture.url }}" alt="" 
+                         class="w-12 h-12 rounded-full object-cover">
+                    {% else %}
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-accent-blue to-accent-cyan flex items-center justify-center">
+                        <span class="text-sm font-bold text-white">{{ item.other_user.first_name.0|default:item.other_user.username.0|upper }}</span>
+                    </div>
+                    {% endif %}
+                    {% if item.unread_count > 0 %}
+                    <span class="absolute -top-1 -right-1 w-5 h-5 bg-accent-blue rounded-full text-[10px] font-bold text-white flex items-center justify-center">{{ item.unread_count }}</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Info -->
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between mb-0.5">
+                        <h3 class="text-sm font-semibold text-text-primary truncate {% if item.unread_count > 0 %}text-accent-cyan{% endif %}">
+                            {{ item.other_user.get_full_name_display }}
+                        </h3>
+                        {% if item.last_message %}
+                        <span class="text-xs text-text-muted flex-shrink-0 ml-2">{{ item.last_message.get_timestamp_display }}</span>
+                        {% endif %}
+                    </div>
+                    {% if item.last_message %}
+                    <p class="text-sm text-text-muted truncate {% if item.unread_count > 0 %}text-text-secondary font-medium{% endif %}">
+                        {% if item.last_message.sender == request.user %}You: {% endif %}{{ item.last_message.content|truncatechars:60 }}
+                    </p>
+                    {% else %}
+                    <p class="text-sm text-text-muted">Start a conversation...</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Arrow -->
+                <i class="fa-solid fa-chevron-right text-text-muted group-hover:text-accent-blue transition-colors flex-shrink-0"></i>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="bg-bg-navy border border-border-subtle rounded-xl p-12 text-center">
+            <div class="w-16 h-16 mx-auto bg-bg-surface rounded-full flex items-center justify-center mb-4">
+                <i class="fa-regular fa-comment-dots text-2xl text-text-muted"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-text-primary mb-2">No conversations yet</h3>
+            <p class="text-text-secondary text-sm max-w-sm mx-auto mb-6">
+                Start chatting with an expert to get personalized help and guidance.
+            </p>
+            <a href="{% url 'expert_list' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-accent-blue hover:bg-blue-600 text-white font-medium rounded-lg transition-all">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                Find an Expert
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

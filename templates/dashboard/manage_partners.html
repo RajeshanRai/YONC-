@@ -1,0 +1,108 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-xl font-bold text-text-primary">Manage Partners</h1>
+        <p class="text-sm text-text-muted mt-1">{{ total_count }} partner{{ total_count|pluralize }} found</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-2">
+        <div class="flex gap-2">
+            <a href="?status=all" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all {% if status_filter == 'all' %}bg-accent-blue text-white{% else %}bg-bg-surface text-text-secondary hover:bg-bg-navy-hover{% endif %}">All</a>
+            <a href="?status=active" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all {% if status_filter == 'active' %}bg-success-green text-white{% else %}bg-bg-surface text-text-secondary hover:bg-bg-navy-hover{% endif %}">Active</a>
+            <a href="?status=inactive" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all {% if status_filter == 'inactive' %}bg-emergency-red text-white{% else %}bg-bg-surface text-text-secondary hover:bg-bg-navy-hover{% endif %}">Inactive</a>
+        </div>
+        <a href="{% url 'create_partner' %}" class="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-lg bg-accent-blue text-white hover:bg-blue-600 transition-all">Add Partner</a>
+    </div>
+</div>
+
+<div class="bg-bg-navy border border-border-subtle rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="bg-bg-navy-hover border-b border-border-subtle">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Partner</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Website</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Sort Order</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border-subtle">
+                {% for partner in partners %}
+                <tr class="hover:bg-bg-navy-hover transition-colors" id="partner-row-{{ partner.id }}">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            {% if partner.logo %}
+                            <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" class="w-10 h-10 rounded-lg object-contain border border-border-subtle">
+                            {% else %}
+                            <div class="w-10 h-10 rounded-lg bg-bg-surface flex items-center justify-center">
+                                <span class="text-xs font-bold text-text-secondary">{{ partner.name.0|upper }}</span>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <p class="text-sm font-medium text-text-primary">{{ partner.name }}</p>
+                                {% if partner.description %}
+                                <p class="text-xs text-text-muted">{{ partner.description|truncatechars:60 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        {% if partner.website %}
+                        <a href="{{ partner.website }}" target="_blank" rel="noopener noreferrer" class="text-sm text-accent-blue hover:text-accent-cyan break-all">{{ partner.website }}</a>
+                        {% else %}
+                        <span class="text-sm text-text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-0.5 text-[10px] font-medium rounded-md {% if partner.is_active %}bg-success-green/10 text-success-green{% else %}bg-emergency-red/10 text-emergency-red{% endif %}">
+                            {% if partner.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="text-sm text-text-secondary">{{ partner.sort_order }}</span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{% url 'edit_partner' partner.id %}" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-bg-surface text-text-secondary hover:bg-bg-navy-hover transition-all">Edit</a>
+                            <button onclick="togglePartnerActive({{ partner.id }})" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-bg-surface text-text-secondary hover:bg-bg-navy-hover transition-all">
+                                {% if partner.is_active %}Deactivate{% else %}Activate{% endif %}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-4 py-8 text-center text-text-muted text-sm">
+                        No partners available.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function togglePartnerActive(partnerId) {
+    fetch(`/dashboard/api/partners/${partnerId}/toggle-active/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        }
+    });
+}
+</script>
+
+{% endblock %}

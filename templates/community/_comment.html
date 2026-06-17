@@ -1,0 +1,58 @@
+<div class="comment-item" id="comment-{{ comment.id }}">
+    <div class="comment-avatar">
+        <img src="{{ comment.author.get_profile_picture_url }}" alt="{{ comment.author.get_full_name_display }}" class="w-full h-full object-cover">
+    </div>
+    <div class="comment-body">
+        <div class="comment-meta">
+            <div class="comment-author">{{ comment.author.get_full_name_display }}</div>
+            <div class="comment-time">· {{ comment.created_at|timesince }} ago</div>
+        </div>
+        <div class="comment-text">{{ comment.content|linebreaksbr }}</div>
+
+        <div class="comment-actions">
+            <a href="#" class="reply-toggle">Reply</a>
+            {% if comment.active_replies %}
+                <button class="view-replies" data-id="{{ comment.id }}">View {{ comment.active_replies|length }} repl{{ comment.active_replies|length|pluralize }}</button>
+            {% endif %}
+            {% if user.is_authenticated %}
+                {% if user == comment.author %}
+                    <button class="btn-comment-edit" data-id="{{ comment.id }}">Edit</button>
+                    <button class="btn-comment-delete" data-id="{{ comment.id }}">Delete</button>
+                {% endif %}
+                {% if user == comment.post.author %}
+                    <button class="btn-comment-delete" data-id="{{ comment.id }}">Delete</button>
+                    <button class="btn-comment-pin" data-id="{{ comment.id }}" data-pinned="{% if comment.is_pinned %}1{% else %}0{% endif %}">{% if comment.is_pinned %}Unpin{% else %}Pin{% endif %}</button>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="comment-edit-form" style="display:none;">
+            <form class="comment-edit-ajax" data-comment-id="{{ comment.id }}">
+                {% csrf_token %}
+                <div>
+                    <textarea name="content" class="form-textarea" rows="3">{{ comment.content }}</textarea>
+                </div>
+                <div class="mt-2">
+                    <button type="submit" class="px-3 py-1 bg-accent-blue text-white rounded-full text-sm">Save</button>
+                    <button type="button" class="btn-cancel-edit px-3 py-1 border rounded-full text-sm">Cancel</button>
+                </div>
+            </form>
+        </div>
+        <div class="reply-form" style="display:none;">
+            <form class="ajax-reply-form space-y-2" data-post-id="{{ comment.post.id }}">
+                {% csrf_token %}
+                <div>
+                    <textarea name="content" class="form-textarea" rows="2" placeholder="Write your reply..."></textarea>
+                </div>
+                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                <button type="submit" class="btn-send text-white bg-accent-blue rounded-full p-2" title="Send">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+
+        {% if comment.active_replies %}
+            <div class="replies-container hidden" data-id="{{ comment.id }}"></div>
+        {% endif %}
+    </div>
+</div>

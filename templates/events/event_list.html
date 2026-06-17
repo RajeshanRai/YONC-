@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-6xl mx-auto space-y-6">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+                <p class="text-sm uppercase tracking-[0.3em] text-text-muted">Events</p>
+                <h1 class="text-3xl font-bold text-text-primary">Upcoming Community Events</h1>
+            </div>
+        </div>
+
+        {% if events %}
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {% for event in events %}
+            <a href="{% url 'events:event_detail' event.pk %}" class="block rounded-3xl border border-border-subtle bg-bg-surface overflow-hidden hover:border-accent-blue/50 hover:shadow-lg transition-all">
+                <div class="relative h-48 bg-bg-navy-hover overflow-hidden">
+                    {% if event.image %}
+                    <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center">
+                        <i class="fa-solid fa-calendar-days text-4xl text-text-muted"></i>
+                    </div>
+                    {% endif %}
+                    {% if event.is_ticketed %}
+                    <div class="absolute top-3 right-3 px-3 py-1 bg-accent-blue/90 text-white text-xs font-semibold rounded-full">
+                        {% if event.price > 0 %}${{ event.price }}{% else %}Free{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="p-5 space-y-3">
+                    <div>
+                        <h3 class="text-lg font-semibold text-text-primary line-clamp-2">{{ event.title }}</h3>
+                        <p class="text-sm text-text-secondary mt-1 line-clamp-2">{{ event.description|truncatechars:100 }}</p>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center gap-2 text-text-secondary">
+                            <i class="fa-solid fa-calendar-check text-accent-blue w-4"></i>
+                            <span>{{ event.start_time|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-text-secondary">
+                            <i class="fa-solid fa-clock text-accent-blue w-4"></i>
+                            <span>{{ event.start_time|date:"H:i" }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-text-secondary">
+                            <i class="fa-solid fa-map-pin text-accent-blue w-4"></i>
+                            <span>{{ event.location|default:'Online' }}</span>
+                        </div>
+                    </div>
+                    {% if event.is_full %}
+                    <div class="pt-2 border-t border-border-subtle">
+                        <span class="inline-flex items-center gap-2 px-3 py-2 bg-text-disabled/10 text-text-muted text-xs font-semibold rounded-full">Fully Booked</span>
+                    </div>
+                    {% elif event.is_ticketed %}
+                    <div class="pt-2 border-t border-border-subtle">
+                        <p class="text-xs text-text-secondary">{{ event.seats_remaining }} seats remaining</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="rounded-3xl border border-border-subtle bg-bg-surface p-8 text-center">
+            <p class="text-text-secondary">No upcoming events have been added yet. Check back soon for webinars and workshops.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

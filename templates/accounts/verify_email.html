@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="min-h-[70vh] flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-lg bg-bg-navy border border-border-subtle rounded-3xl p-10 shadow-lg">
+        <div class="text-center mb-8">
+            <div class="mx-auto mb-4 w-14 h-14 rounded-full bg-accent-blue/10 flex items-center justify-center">
+                <i class="fa-solid fa-key text-accent-blue text-2xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-text-primary">Verify Your Email</h1>
+            <p class="text-text-secondary mt-2">Enter the 6-digit code we sent to your email address.</p>
+            {% if countdown_seconds is not none %}
+            <div class="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-accent-blue/10 text-accent-blue text-sm font-medium px-4 py-2">
+                <i class="fa-solid fa-hourglass-half"></i>
+                <span id="code-countdown">{{ countdown_seconds }} seconds remaining</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="w-full py-3 bg-accent-blue hover:bg-blue-600 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-accent-blue/30">
+                Verify Code
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-sm text-text-secondary">
+            Didn't receive a code?
+            <a href="{% url 'resend_verification' %}" class="text-accent-blue hover:text-accent-cyan transition-colors">Request a new one</a>.
+        </div>
+    </div>
+</section>
+
+{% if countdown_seconds is not none %}
+<script>
+    (function() {
+        const countdownTarget = document.getElementById('code-countdown');
+        let remaining = {{ countdown_seconds }};
+
+        if (!countdownTarget) {
+            return;
+        }
+
+        const updateLabel = () => {
+            if (remaining <= 0) {
+                countdownTarget.textContent = 'Verification code has expired.';
+                return;
+            }
+            countdownTarget.textContent = `${remaining} second${remaining === 1 ? '' : 's'} remaining`;
+            remaining -= 1;
+        };
+
+        updateLabel();
+        const timer = setInterval(() => {
+            updateLabel();
+            if (remaining < 0) {
+                clearInterval(timer);
+            }
+        }, 1000);
+    })();
+</script>
+{% endif %}
+{% endblock %}

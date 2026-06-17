@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-messages::-webkit-scrollbar { width: 6px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+    .chat-messages::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    @keyframes messageSlide {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .message-anim { animation: messageSlide 0.3s ease-out; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-6 px-4 h-[calc(100vh-4rem)]">
+    <div class="max-w-3xl mx-auto h-full flex flex-col bg-bg-navy border border-border-subtle rounded-xl overflow-hidden">
+        
+        <!-- Chat Header -->
+        <div class="px-4 py-3 bg-bg-navy-hover border-b border-border-subtle flex items-center gap-3">
+            <a href="{% url 'inbox' %}" class="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-surface transition-all md:hidden">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            
+            <!-- Avatar -->
+            <div class="relative">
+                {% if other_user.profile_picture and other_user.profile_picture.url != '/media/' %}
+                <img src="{{ other_user.profile_picture.url }}" alt="" class="w-10 h-10 rounded-full object-cover">
+                {% else %}
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-accent-blue to-accent-cyan flex items-center justify-center">
+                    <span class="text-sm font-bold text-white">{{ other_user.first_name.0|default:other_user.username.0|upper }}</span>
+                </div>
+                {% endif %}
+                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-success-green border-2 border-bg-navy rounded-full"></span>
+            </div>
+            
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                    <h2 class="text-sm font-semibold text-text-primary truncate">{{ other_user.get_full_name_display }}</h2>
+                    {% if expert_profile %}
+                    <span class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-medium rounded" style="background-color: {{ expert_profile.category.color }}20; color: {{ expert_profile.category.color }};">
+                        {{ expert_profile.category.name }}
+                    </span>
+                    {% endif %}
+                </div>
+                <p class="text-xs text-success-green">Online</p>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex items-center gap-1">
+                <a href="{% url 'public_profile' other_user.id %}" class="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-surface transition-all" title="View Profile">
+                    <i class="fa-solid fa-user text-sm"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Messages Area -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 chat-messages">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="flex {% if message.sender == request.user %}justify-end{% else %}justify-start{% endif %} message-anim" data-message-id="{{ message.id }}">
+                <div class="max-w-[75%] {% if message.sender == request.user %}bg-accent-blue text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl{% else %}bg-bg-surface text-text-primary rounded-tl-xl rounded-tr-xl rounded-br-xl{% endif %} px-4 py-2.5 shadow-sm">
+                    <p class="text-sm leading-relaxed">{{ message.content }}</p>
+                    <p class="text-[10px] mt-1 {% if message.sender == request.user %}text-blue-200{% else %}text-text-muted{% endif %}">
+                        {{ message.get_timestamp_display }}
+                        {% if message.sender == request.user %}
+                        <i class="fa-solid fa-check {% if message.is_read %}text-success-green{% endif %} ml-1"></i>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <!-- Empty State -->
+            <div class="flex-1 flex flex-col items-center justify-center text-center py-12">
+                <div class="w-14 h-14 bg-bg-surface rounded-full flex items-center justify-center mb-4">
+                    <i class="fa-regular fa-paper-plane text-xl text-text-muted"></i>
+                </div>
+                <h3 class="text-sm font-semibold text-text-primary mb-1">Start the conversation</h3>
+                <p class="text-xs text-text-muted max-w-xs">Send a message to {{ other_user.first_name|default:other_user.username }} to get started.</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Input Area -->
+        <div class="p-3 border-t border-border-subtle bg-bg-navy">
+            <form id="chat-form" class="flex gap-2" onsubmit="return handleChatSubmit(event)">
+                {% csrf_token %}
+                <input type="hidden" id="receiver-id" value="{{ other_user.id }}">
+                <input type="text" id="message-input" 
+                       class="flex-1 px-4 py-2.5 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted text-sm focus:outline-none focus:border-accent-blue transition-colors"
+                       placeholder="Type a message..." autocomplete="off" autofocus>
+                <button type="submit" class="px-4 py-2.5 bg-accent-blue hover:bg-blue-600 text-white rounded-lg transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane text-sm"></i>
+                    <span class="hidden sm:inline text-sm">Send</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+// Scroll to bottom on load
+const chatContainer = document.getElementById('chat-messages');
+if (chatContainer) {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Handle form submit
+function handleChatSubmit(event) {
+    event.preventDefault();
+    const input = document.getElementById('message-input');
+    const receiverId = document.getElementById('receiver-id').value;
+    const content = input.value.trim();
+    
+    if (!content) return false;
+    
+    // Add message to UI immediately
+    const messagesContainer = document.getElementById('chat-messages');
+    const emptyState = messagesContainer.querySelector('.flex-col.items-center');
+    if (emptyState) emptyState.remove();
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'flex justify-end message-anim';
+    messageDiv.innerHTML = `
+        <div class="max-w-[75%] bg-accent-blue text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl px-4 py-2.5 shadow-sm">
+            <p class="text-sm leading-relaxed">${escapeHtml(content)}</p>
+            <p class="text-[10px] mt-1 text-blue-200">Just now <i class="fa-solid fa-check ml-1"></i></p>
+        </div>
+    `;
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Send via AJAX
+    const formData = new FormData();
+    formData.append('receiver_id', receiverId);
+    formData.append('content', content);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    fetch('/messages/send/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            input.value = '';
+            input.focus();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+    
+    return false;
+}
+
+// Escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Poll for new messages
+let lastMessageId = 0;
+const messageElements = document.querySelectorAll('[data-message-id]');
+if (messageElements.length > 0) {
+    lastMessageId = Math.max(...Array.from(messageElements).map(el => parseInt(el.dataset.messageId)));
+}
+
+function pollMessages() {
+    const receiverId = document.getElementById('receiver-id').value;
+    
+    fetch(`/messages/get/${receiverId}/?last_id=${lastMessageId}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success' && data.messages.length > 0) {
+            const messagesContainer = document.getElementById('chat-messages');
+            
+            data.messages.forEach(msg => {
+                lastMessageId = Math.max(lastMessageId, msg.id);
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'flex justify-start message-anim';
+                messageDiv.dataset.messageId = msg.id;
+                messageDiv.innerHTML = `
+                    <div class="max-w-[75%] bg-bg-surface text-text-primary rounded-tl-xl rounded-tr-xl rounded-br-xl px-4 py-2.5 shadow-sm">
+                        <p class="text-sm leading-relaxed">${escapeHtml(msg.content)}</p>
+                        <p class="text-[10px] mt-1 text-text-muted">${msg.timestamp}</p>
+                    </div>
+                `;
+                messagesContainer.appendChild(messageDiv);
+            });
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    })
+    .catch(error => console.error('Error polling:', error));
+}
+
+// Poll every 3 seconds
+setInterval(pollMessages, 3000);
+</script>
+{% endblock %}

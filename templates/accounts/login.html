@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-md">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="w-14 h-14 mx-auto bg-accent-blue rounded-xl flex items-center justify-center mb-4">
+                <i class="fa-solid fa-mountain-sun text-white text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-text-primary">Welcome Back</h1>
+            <p class="text-text-secondary mt-2">Sign in to your YONC account</p>
+        </div>
+        
+        <!-- Login Form -->
+        <div class="bg-bg-navy border border-border-subtle rounded-xl p-6 md:p-8">
+            <form method="post" class="space-y-5">
+                {% csrf_token %}
+                
+                <!-- Username -->
+                <div>
+                    <label for="id_username" class="block text-sm font-medium text-text-secondary mb-2">Username</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-user text-text-muted text-sm"></i>
+                        </div>
+                        <input type="text" name="username" id="id_username" required
+                               class="w-full pl-10 pr-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-blue transition-colors"
+                               placeholder="Enter your username">
+                    </div>
+                </div>
+                
+                <!-- Password -->
+                <div>
+                    <label for="id_password" class="block text-sm font-medium text-text-secondary mb-2">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-lock text-text-muted text-sm"></i>
+                        </div>
+                        <input type="password" name="password" id="id_password" required
+                               class="w-full pl-10 pr-10 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-blue transition-colors"
+                               placeholder="Enter your password">
+                        <button type="button" onclick="togglePassword('id_password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-text-secondary">
+                            <i class="fa-solid fa-eye text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Submit -->
+                <button type="submit" 
+                        class="w-full py-3 bg-accent-blue hover:bg-blue-600 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-accent-blue/30">
+                    Sign In
+                </button>
+            </form>
+            <div class="mt-4 text-center text-sm text-text-secondary">
+                <a href="{% url 'resend_verification' %}" class="text-accent-blue hover:text-accent-cyan transition-colors">Resend verification code</a>
+            </div>
+            
+            <!-- Divider -->
+            <div class="flex items-center my-6">
+                <div class="flex-1 border-t border-border-subtle"></div>
+                <span class="px-3 text-xs text-text-muted">or</span>
+                <div class="flex-1 border-t border-border-subtle"></div>
+            </div>
+            
+            <!-- Register Link -->
+            <p class="text-center text-sm text-text-secondary">
+                Don't have an account? 
+                <a href="{% url 'register' %}" class="text-accent-blue hover:text-accent-cyan font-medium transition-colors">Join YONC</a>
+            </p>
+        </div>
+        
+        <!-- Back to Home -->
+        <div class="text-center mt-6">
+            <a href="{% url 'home' %}" class="text-sm text-text-muted hover:text-text-secondary transition-colors inline-flex items-center gap-1">
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    field.type = field.type === 'password' ? 'text' : 'password';
+}
+</script>
+{% endblock %}

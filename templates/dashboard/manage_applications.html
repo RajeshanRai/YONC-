@@ -1,0 +1,156 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+
+<!-- Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-xl font-bold text-text-primary">Expert Applications</h1>
+        <p class="text-sm text-text-muted mt-1">{{ total_count }} application{{ total_count|pluralize }} found</p>
+    </div>
+    <div class="flex gap-2">
+        <a href="?status=all" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all {% if status_filter == 'all' %}bg-accent-blue text-white{% else %}bg-bg-surface text-text-secondary hover:bg-bg-navy-hover{% endif %}">All</a>
+        <a href="?status=pending" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all {% if status_filter == 'pending' %}bg-yellow-500 text-white{% else %}bg-bg-surface text-text-secondary hover:bg-bg-navy-hover{% endif %}">Pending</a>
+        <a href="?status=approved" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all {% if status_filter == 'approved' %}bg-success-green text-white{% else %}bg-bg-surface text-text-secondary hover:bg-bg-navy-hover{% endif %}">Approved</a>
+        <a href="?status=rejected" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all {% if status_filter == 'rejected' %}bg-emergency-red text-white{% else %}bg-bg-surface text-text-secondary hover:bg-bg-navy-hover{% endif %}">Rejected</a>
+    </div>
+</div>
+
+<!-- Applications -->
+{% if applications %}
+<div class="space-y-4">
+    {% for app in applications %}
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 hover:border-accent-blue/30 transition-all" id="app-{{ app.id }}">
+        <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+            <!-- Info -->
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-3">
+                    {% if app.user.profile_picture and app.user.profile_picture.url != '/media/' %}
+                    <img src="{{ app.user.profile_picture.url }}" alt="" class="w-10 h-10 rounded-full object-cover">
+                    {% else %}
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-accent-blue to-accent-cyan flex items-center justify-center">
+                        <span class="text-sm font-bold text-white">{{ app.user.first_name.0|default:app.user.username.0|upper }}</span>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h3 class="text-sm font-semibold text-text-primary">{{ app.user.get_full_name_display }}</h3>
+                        <p class="text-xs text-text-muted">@{{ app.user.username }} - Applied {{ app.submitted_at|timesince }} ago</p>
+                    </div>
+                    <span class="px-2 py-0.5 text-[10px] font-medium rounded-md ml-auto md:ml-2
+                        {% if app.status == 'approved' %}bg-success-green/10 text-success-green
+                        {% elif app.status == 'pending' %}bg-yellow-500/10 text-yellow-500
+                        {% else %}bg-emergency-red/10 text-emergency-red{% endif %}">
+                        {{ app.get_status_display }}
+                    </span>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                    <div class="bg-bg-surface rounded-lg p-2.5">
+                        <p class="text-[10px] text-text-muted uppercase">Category</p>
+                        <p class="text-sm font-medium text-text-primary">{{ app.category.name }}</p>
+                    </div>
+                    <div class="bg-bg-surface rounded-lg p-2.5">
+                        <p class="text-[10px] text-text-muted uppercase">Experience</p>
+                        <p class="text-sm font-medium text-text-primary">{{ app.years_experience }} years</p>
+                    </div>
+                    <div class="bg-bg-surface rounded-lg p-2.5">
+                        <p class="text-[10px] text-text-muted uppercase">Location</p>
+                        <p class="text-sm font-medium text-text-primary">{{ app.city }}</p>
+                    </div>
+                    <div class="bg-bg-surface rounded-lg p-2.5">
+                        <p class="text-[10px] text-text-muted uppercase">Province</p>
+                        <p class="text-sm font-medium text-text-primary">{{ app.get_province_display }}</p>
+                    </div>
+                </div>
+                
+                <div class="bg-bg-surface rounded-lg p-3 mb-3">
+                    <p class="text-[10px] text-text-muted uppercase mb-1">Bio</p>
+                    <p class="text-sm text-text-secondary">{{ app.bio|truncatewords:30 }}</p>
+                </div>
+                
+                {% if app.qualifications %}
+                <div class="bg-bg-surface rounded-lg p-3 mb-3">
+                    <p class="text-[10px] text-text-muted uppercase mb-1">Qualifications</p>
+                    <p class="text-sm text-text-secondary">{{ app.qualifications }}</p>
+                </div>
+                {% endif %}
+                
+                {% if app.review_notes %}
+                <div class="bg-emergency-red/5 border border-emergency-red/20 rounded-lg p-3">
+                    <p class="text-[10px] text-emergency-red uppercase mb-1">Review Notes</p>
+                    <p class="text-sm text-text-secondary">{{ app.review_notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Actions -->
+            {% if app.status == 'pending' %}
+            <div class="flex md:flex-col gap-2 flex-shrink-0">
+                <button onclick="approveApp({{ app.id }})" class="px-4 py-2 bg-success-green hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-check text-xs"></i>Approve
+                </button>
+                <button onclick="rejectApp({{ app.id }})" class="px-4 py-2 bg-emergency-red hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-xmark text-xs"></i>Reject
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="bg-bg-navy border border-border-subtle rounded-xl p-12 text-center">
+    <div class="w-14 h-14 mx-auto bg-bg-surface rounded-full flex items-center justify-center mb-4">
+        <i class="fa-solid fa-clipboard-check text-xl text-text-muted"></i>
+    </div>
+    <p class="text-text-muted">No applications found.</p>
+</div>
+{% endif %}
+
+<script>
+function approveApp(appId) {
+    if (!appConfirm('Approve this expert application?')) return;
+    
+    fetch(`/dashboard/api/applications/${appId}/approve/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            document.getElementById(`app-${appId}`).remove();
+            location.reload();
+        }
+    });
+}
+
+function rejectApp(appId) {
+    const notes = appPrompt('Add review notes (optional):');
+    if (notes === null) return;
+    
+    const formData = new FormData();
+    formData.append('review_notes', notes);
+    
+    fetch(`/dashboard/api/applications/${appId}/reject/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        }
+    });
+}
+</script>
+
+{% endblock %}

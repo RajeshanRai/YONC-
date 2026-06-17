@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-5xl mx-auto space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div>
+                <p class="text-xs uppercase tracking-[0.35em] text-text-muted">{{ category.name }}</p>
+                <h1 class="text-3xl font-bold text-text-primary">Discussion threads</h1>
+                <p class="text-text-secondary mt-2">{{ category.description }}</p>
+            </div>
+            {% if user.is_authenticated and (user.is_expert or user.is_admin) %}
+            <a href="{% url 'community:new_post' %}" class="px-5 py-3 bg-accent-blue hover:bg-blue-600 text-white rounded-full text-sm font-semibold transition-all">Create Post</a>
+            {% elif user.is_authenticated %}
+            <div class="px-5 py-3 rounded-full bg-bg-navy text-sm font-semibold text-text-muted">Regular members can comment on posts.</div>
+            {% endif %}
+        </div>
+
+        {% if posts %}
+        <div class="space-y-4">
+            {% for post in posts %}
+            <a href="{% url 'community:post_detail' post.pk %}" class="block rounded-3xl border border-border-subtle bg-bg-surface p-6 hover:border-accent-blue/30 transition-all">
+                <div class="flex items-center justify-between gap-4">
+                    <h2 class="text-lg font-semibold text-text-primary">{{ post.title }}</h2>
+                    <span class="text-xs text-text-muted">{{ post.created_at|date:'M d, Y' }}</span>
+                </div>
+                <p class="text-sm text-text-secondary mt-3 truncate">{{ post.content|truncatechars:130 }}</p>
+                <p class="text-xs text-text-muted mt-3">By {{ post.author.get_full_name_display }} · {{ post.comments.count }} replies</p>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="rounded-3xl border border-border-subtle bg-bg-surface p-8 text-center">
+            <p class="text-text-secondary">There are no posts in this category yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

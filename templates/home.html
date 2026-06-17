@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+    <!-- Background with overlay -->
+    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-bg-void/90 via-bg-void/80 to-bg-void"></div>
+    
+    <!-- Content -->
+    <div class="relative z-10 max-w-4xl mx-auto px-4 text-center">
+        <!-- Logo -->
+        <div class="mb-8 animate-fade-in">
+            <div class="w-20 h-20 mx-auto bg-accent-blue rounded-2xl flex items-center justify-center shadow-lg shadow-accent-blue/30 mb-6">
+                <i class="fa-solid fa-mountain-sun text-white text-3xl"></i>
+            </div>
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-text-primary leading-tight mb-4">
+                Youth of Nepal<br>Creating <span class="text-accent-cyan">Change</span>
+            </h1>
+            <p class="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
+                Connect with trusted experts across all provinces. From accounting to emergency contacts, 
+                find the support you need within our community.
+            </p>
+        </div>
+        
+        <!-- Province Selector -->
+        <div class="max-w-md mx-auto animate-slide-up">
+            <form action="{% url 'expert_list' %}" method="get" class="space-y-4">
+                <div class="relative">
+                    <select name="province" required
+                            class="w-full px-5 py-4 rounded-xl bg-bg-navy/80 backdrop-blur border-2 border-border-subtle text-text-primary appearance-none cursor-pointer focus:outline-none focus:border-accent-blue transition-all text-base">
+                        <option value="" disabled selected>Select your province</option>
+                        {% for code, name in provinces %}
+                        <option value="{{ code }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <i class="fa-solid fa-chevron-down text-text-muted"></i>
+                    </div>
+                </div>
+                <button type="submit" 
+                        class="w-full px-6 py-4 bg-accent-blue hover:bg-blue-600 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-accent-blue/30 flex items-center justify-center gap-2 group">
+                    <span>Explore Experts</span>
+                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="mt-12 flex flex-wrap justify-center gap-8 animate-fade-in delay-300">
+            <div class="text-center">
+                <p class="text-2xl md:text-3xl font-bold text-accent-cyan">{{ total_experts }}+</p>
+                <p class="text-sm text-text-secondary mt-1">Verified Experts</p>
+            </div>
+            <div class="text-center">
+                <p class="text-2xl md:text-3xl font-bold text-accent-cyan">{{ total_categories }}</p>
+                <p class="text-sm text-text-secondary mt-1">Service Categories</p>
+            </div>
+            <div class="text-center">
+                <p class="text-2xl md:text-3xl font-bold text-accent-cyan">{{ total_users }}+</p>
+                <p class="text-sm text-text-secondary mt-1">Community Members</p>
+            </div>
+            <div class="text-center">
+                <p class="text-2xl md:text-3xl font-bold text-accent-cyan">13</p>
+                <p class="text-sm text-text-secondary mt-1">Provinces Covered</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-20 px-4">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-14">
+            <h2 class="text-3xl md:text-4xl font-bold text-text-primary mb-4">How YONC+ Works</h2>
+            <p class="text-text-secondary max-w-xl mx-auto">Getting help from our community of experts is simple and straightforward.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Step 1 -->
+            <div class="bg-bg-navy border border-border-subtle rounded-xl p-8 hover:border-accent-blue/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent-blue/10 transition-all duration-300 group">
+                <div class="w-14 h-14 bg-accent-blue/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-accent-blue/20 transition-colors">
+                    <i class="fa-solid fa-magnifying-glass text-2xl text-accent-blue"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-text-primary mb-3">Find an Expert</h3>
+                <p class="text-text-secondary text-sm leading-relaxed">
+                    Browse our directory of verified experts by province, category, or specialty. 
+                    Filter by Accounting, IT, Legal, Counselling, and more.
+                </p>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="bg-bg-navy border border-border-subtle rounded-xl p-8 hover:border-accent-blue/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent-blue/10 transition-all duration-300 group">
+                <div class="w-14 h-14 bg-accent-blue/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-accent-blue/20 transition-colors">
+                    <i class="fa-solid fa-handshake text-2xl text-accent-blue"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-text-primary mb-3">Connect & Chat</h3>
+                <p class="text-text-secondary text-sm leading-relaxed">
+                    Send a direct message to any expert through our built-in messenger. 
+                    Get personalized advice and guidance in real-time.
+                </p>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="bg-bg-navy border border-border-subtle rounded-xl p-8 hover:border-accent-blue/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent-blue/10 transition-all duration-300 group">
+                <div class="w-14 h-14 bg-accent-blue/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-accent-blue/20 transition-colors">
+                    <i class="fa-solid fa-shield-halved text-2xl text-accent-blue"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-text-primary mb-3">Community Support</h3>
+                <p class="text-text-secondary text-sm leading-relaxed">
+                    Join a trusted network of Nepali youth across Canada. 
+                    Share experiences, find emergency contacts, and grow together.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Service Categories Section -->
+<section class="py-20 px-4 bg-bg-navy/50">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-14">
+            <h2 class="text-3xl md:text-4xl font-bold text-text-primary mb-4">Our Services</h2>
+            <p class="text-text-secondary max-w-xl mx-auto">Explore expert assistance across these key areas for Nepali youth in Canada.</p>
+        </div>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {% for category in service_categories %}
+            <a href="{% url 'expert_list_by_category' category.slug %}" 
+               class="group bg-bg-navy border border-border-subtle rounded-xl p-6 hover:border-accent-blue/50 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-center">
+                <div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-4 transition-colors" 
+                     style="background-color: {{ category.color }}20;">
+                    <i class="{{ category.icon_class }} text-xl" style="color: {{ category.color }};"></i>
+                </div>
+                <h3 class="text-sm font-semibold text-text-primary group-hover:text-accent-cyan transition-colors">{{ category.name }}</h3>
+                <p class="text-xs text-text-muted mt-1">{{ category.expert_profiles.count }} experts</p>
+            </a>
+            {% empty %}
+            <div class="col-span-full text-center py-10">
+                <p class="text-text-muted">No service categories available yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-10">
+            <a href="{% url 'category_list' %}" class="inline-flex items-center gap-2 px-6 py-3 border border-accent-blue text-accent-blue hover:bg-accent-blue hover:text-white rounded-xl transition-all font-medium">
+                View All Services
+                <i class="fa-solid fa-arrow-right text-sm"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Experts Section -->
+{% if featured_experts %}
+<section class="py-20 px-4">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-10">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-bold text-text-primary mb-2">Featured Experts</h2>
+                <p class="text-text-secondary">Top-rated professionals in our community</p>
+            </div>
+            <a href="{% url 'expert_list' %}" class="hidden md:inline-flex items-center gap-2 text-accent-blue hover:text-accent-cyan transition-colors font-medium">
+                View All
+                <i class="fa-solid fa-arrow-right text-sm"></i>
+            </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for expert in featured_experts %}
+            {% include 'partials/expert_card.html' with expert=expert %}
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-8 md:hidden">
+            <a href="{% url 'expert_list' %}" class="inline-flex items-center gap-2 text-accent-blue hover:text-accent-cyan transition-colors font-medium">
+                View All Experts
+                <i class="fa-solid fa-arrow-right text-sm"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-20 px-4">
+    <div class="max-w-4xl mx-auto">
+        <div class="relative bg-gradient-to-r from-accent-blue/20 to-accent-cyan/20 border border-accent-blue/30 rounded-2xl p-10 md:p-14 text-center overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-accent-blue/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-accent-cyan/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+            
+            <div class="relative z-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-text-primary mb-4">Become an Expert</h2>
+                <p class="text-text-secondary max-w-xl mx-auto mb-8 leading-relaxed">
+                    Are you a professional looking to give back to the Nepali community in Canada? 
+                    Apply to become a verified expert and help others navigate life in Canada.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'apply_expert' %}" 
+                       class="px-8 py-4 bg-accent-blue hover:bg-blue-600 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-accent-blue/30 inline-flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        Apply Now
+                    </a>
+                    {% else %}
+                    <a href="{% url 'register' %}" 
+                       class="px-8 py-4 bg-accent-blue hover:bg-blue-600 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-accent-blue/30 inline-flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-user-plus"></i>
+                        Join & Apply
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'expert_list' %}" 
+                       class="px-8 py-4 border border-text-secondary text-text-secondary hover:text-text-primary hover:border-text-primary rounded-xl transition-all font-medium inline-flex items-center justify-center gap-2">
+                        Browse Experts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Emergency Section -->
+<section class="py-16 px-4 bg-emergency-red/5 border-y border-emergency-red/10">
+    <div class="max-w-4xl mx-auto text-center">
+        <div class="w-14 h-14 mx-auto bg-emergency-red/10 rounded-xl flex items-center justify-center mb-5">
+            <i class="fa-solid fa-triangle-exclamation text-2xl text-emergency-red"></i>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-bold text-text-primary mb-3">Emergency Contacts</h2>
+        <p class="text-text-secondary max-w-xl mx-auto mb-6">
+            Find emergency contact numbers and resources specific to your province. 
+            From crisis helplines to community emergency responders.
+        </p>
+        <a href="{% url 'expert_list_by_category' 'emergency-contacts' %}" 
+           class="inline-flex items-center gap-2 px-6 py-3 bg-emergency-red hover:bg-red-600 text-white font-semibold rounded-xl transition-all">
+            <i class="fa-solid fa-phone"></i>
+            View Emergency Contacts
+        </a>
+    </div>
+</section>
+
+{% endblock %}

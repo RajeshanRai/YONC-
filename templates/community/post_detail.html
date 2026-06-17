@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/forum-comments.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-5xl mx-auto space-y-6">
+        <div class="rounded-3xl border border-border-subtle bg-bg-surface p-8 shadow-sm">
+            <div class="mb-6">
+                <p class="text-sm uppercase tracking-[0.35em] text-text-muted">{{ post.category.name }}</p>
+                <h1 class="text-3xl font-bold text-text-primary mt-2">{{ post.title }}</h1>
+                <p class="text-sm text-text-muted mt-2">By {{ post.author.get_full_name_display }} · {{ post.created_at|date:'M d, Y \a\t h:i A' }}</p>
+            </div>
+            <div class="prose prose-slate max-w-none text-text-secondary">
+                <p>{{ post_content_html|safe }}</p>
+            </div>
+            <!-- Action toolbar: like / comment / share (moved below description) -->
+            <div class="mt-4 flex items-center justify-between gap-4 action-toolbar" data-post-id="{{ post.id }}" data-authenticated="{% if user.is_authenticated %}1{% else %}0{% endif %}">
+                <div class="flex items-center gap-3">
+                    <button class="inline-flex items-center gap-2 btn-like{% if user_liked %} liked{% endif %}" data-post-id="{{ post.id }}" aria-pressed="{% if user_liked %}true{% else %}false{% endif %}" data-liked="{% if user_liked %}1{% else %}0{% endif %}">
+                        <i class="fa-regular fa-thumbs-up"></i>
+                        <span class="like-label">Like</span>
+                        <span class="like-count ml-1">{{ likes_count }}</span>
+                    </button>
+                    <button class="inline-flex items-center gap-2 btn-comment" title="Jump to replies">
+                        <i class="fa-regular fa-comment"></i>
+                        <span class="comment-label">Comment</span>
+                        <span class="comment-count ml-1">{{ comments|length }}</span>
+                    </button>
+                </div>
+                <div>
+                    {% if user.is_authenticated and user == post.author %}
+                    <a href="{% url 'community:post_edit' pk=post.pk %}" class="inline-flex items-center gap-2 btn-edit mr-2" title="Edit post">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                        <span class="edit-label">Edit</span>
+                    </a>
+                    <a href="{% url 'community:post_delete' pk=post.pk %}" class="inline-flex items-center gap-2 btn-delete mr-2" title="Delete post">
+                        <i class="fa-regular fa-trash-can"></i>
+                        <span class="delete-label">Delete</span>
+                    </a>
+                    {% endif %}
+                    <button class="inline-flex items-center gap-2 btn-share" title="Share this post">
+                        <i class="fa-solid fa-share-nodes"></i>
+                        <span class="share-label">Share</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="replies-block" class="rounded-3xl border border-border-subtle bg-bg-surface p-8 shadow-sm hidden">
+            <h2 class="text-xl font-semibold text-text-primary mb-4">Replies</h2>
+            {% if user.is_authenticated %}
+                <div class="mb-4">
+                    <form class="ajax-reply-form" data-post-id="{{ post.id }}">
+                        {% csrf_token %}
+                        <div class="flex gap-3 items-start">
+                            <textarea name="content" class="form-textarea flex-1 small-reply" rows="2" placeholder="Write a reply..."></textarea>
+                            <button type="submit" class="btn-send text-white bg-accent-blue rounded-full p-2" title="Send">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {% if comments %}
+                <div id="comments-list" class="space-y-4">
+                    {% for comment in comments %}
+                        {% include 'community/_comment.html' with comment=comment %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-text-secondary">There are no replies yet. Be the first to respond.</p>
+                {% endif %}
+            {% else %}
+                <p class="text-text-secondary">Sign in to view comments and replies.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/forum-replies.js' %}"></script>
+<script src="{% static 'js/forum-actions.js' %}"></script>
+{% endblock %}

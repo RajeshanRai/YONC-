@@ -1,0 +1,178 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+
+<!-- Header -->
+<div class="mb-6">
+    <h1 class="text-xl font-bold text-text-primary">Contact Submissions</h1>
+    <p class="text-sm text-text-muted mt-1">Messages submitted via the public contact form</p>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-3 gap-4 mb-8">
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 text-center">
+        <p class="text-2xl font-bold text-text-primary">{{ stats.total }}</p>
+        <p class="text-xs text-text-muted mt-1">Total Submissions</p>
+    </div>
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 text-center">
+        <p class="text-2xl font-bold text-accent-blue">{{ stats.unread }}</p>
+        <p class="text-xs text-text-muted mt-1">Unread</p>
+    </div>
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 text-center">
+        <p class="text-2xl font-bold text-accent-cyan">0</p>
+        <p class="text-xs text-text-muted mt-1">Replied</p>
+    </div>
+</div>
+
+<style>
+.responsive-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.responsive-table thead th {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+}
+.responsive-table td, .responsive-table th {
+  padding: 0.75rem 1rem;
+}
+.subject-cell {
+  max-width: 10rem;
+}
+.message-cell {
+  max-width: 14rem;
+}
+@media (max-width: 767px) {
+  .responsive-table thead {
+    display: none;
+  }
+  .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
+    display: block;
+    width: 100%;
+  }
+  .responsive-table tr {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  }
+  .responsive-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.75rem 0;
+    border: none;
+  }
+  .responsive-table td::before {
+    content: attr(data-label);
+    flex: 0 0 35%;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-right: 0.75rem;
+  }
+  .responsive-table td:last-child {
+    padding-bottom: 0;
+  }
+  .responsive-table td .flex {
+    flex-wrap: wrap;
+  }
+}
+</style>
+
+<div class="bg-bg-navy border border-border-subtle rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="responsive-table min-w-full table-auto">
+            <thead>
+                <tr class="bg-bg-navy-hover border-b border-border-subtle">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">From</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Subject</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Message</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Received</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border-subtle">
+                {% for c in contacts %}
+                <tr class="hover:bg-bg-navy-hover transition-colors">
+                    <td class="px-4 py-3" data-label="From">
+                        <div class="text-sm text-text-secondary font-medium">{{ c.name }}</div>
+                        <div class="text-xs text-text-muted">{{ c.email }}</div>
+                    </td>
+                    <td class="px-4 py-3 subject-cell" data-label="Subject">
+                        <div class="text-sm text-text-primary font-semibold truncate">{{ c.get_subject_display }}</div>
+                    </td>
+                    <td class="px-4 py-3 message-cell" data-label="Message">
+                        <div class="text-sm text-text-secondary truncate">{{ c.message|truncatechars:60 }}</div>
+                    </td>
+                    <td class="px-4 py-3" data-label="Received">
+                        <div class="text-xs text-text-muted">{{ c.created_at|date:'M d, Y H:i' }}</div>
+                    </td>
+                    <td class="px-4 py-3" data-label="Status">
+                        {% if c.is_read %}
+                        <span class="px-2 py-0.5 text-[10px] font-medium bg-bg-navy/10 text-text-muted rounded-md">Read</span>
+                        {% else %}
+                        <span class="px-2 py-0.5 text-[10px] font-medium bg-accent-blue/10 text-accent-blue rounded-md">Unread</span>
+                        {% endif %}
+                        {% if c.replied %}
+                        <span class="ml-2 px-2 py-0.5 text-[10px] font-medium bg-success-green/10 text-success-green rounded-md">Replied</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3" data-label="Actions">
+                        <a href="{% url 'contact_detail' c.id %}" class="inline-flex px-3 py-1 rounded-lg text-sm bg-bg-surface border border-border-subtle hover:bg-bg-navy-hover">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-4 py-8 text-center text-text-muted text-sm">
+                        No contact messages found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.toggle-read').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            fetch(`/dashboard/api/contacts/${id}/toggle-read/`, {method: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')}})
+            .then(res => res.json()).then(data => location.reload());
+        });
+    });
+
+    document.querySelectorAll('.delete-contact').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            if (!confirm('Are you sure you want to delete this message? This action cannot be undone.')) return;
+            fetch(`/dashboard/api/contacts/${id}/delete/`, {method: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')}})
+            .then(res => res.json()).then(data => location.reload());
+        });
+    });
+
+    // No mobile action dropdown needed anymore.
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+
+{% endblock %}

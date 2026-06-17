@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-bg-surface rounded-3xl border border-border-subtle p-8 shadow-sm text-center">
+            <h1 class="text-2xl font-semibold mb-4">Delete this post?</h1>
+            <p class="text-text-secondary mb-6">Are you sure you want to delete "{{ post.title }}"? This action will remove the post from the forum for other users.</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="flex justify-center gap-3">
+                    <button type="submit" class="px-6 py-3 bg-emergency-red text-white rounded-full">Delete</button>
+                    <a href="{% url 'community:post_detail' pk=post.pk %}" class="px-6 py-3 border rounded-full">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+
+<!-- Header -->
+<div class="mb-6">
+    <h1 class="text-xl font-bold text-text-primary">Messages Overview</h1>
+    <p class="text-sm text-text-muted mt-1">Platform-wide messaging activity</p>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-3 gap-4 mb-8">
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 text-center">
+        <p class="text-2xl font-bold text-text-primary">{{ stats.total }}</p>
+        <p class="text-xs text-text-muted mt-1">Total Messages</p>
+    </div>
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 text-center">
+        <p class="text-2xl font-bold text-accent-cyan">{{ stats.today }}</p>
+        <p class="text-xs text-text-muted mt-1">Today</p>
+    </div>
+    <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 text-center">
+        <p class="text-2xl font-bold text-accent-blue">{{ stats.unread }}</p>
+        <p class="text-xs text-text-muted mt-1">Unread</p>
+    </div>
+</div>
+
+<!-- Conversations Table -->
+<div class="bg-bg-navy border border-border-subtle rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="bg-bg-navy-hover border-b border-border-subtle">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Participants</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Last Message</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Time</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Unread</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border-subtle">
+                {% for row in conversations %}
+                <tr class="hover:bg-bg-navy-hover transition-colors">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-2">
+                            {% if row.other.profile_picture and row.other.profile_picture.url != '/media/' %}
+                            <img src="{{ row.other.profile_picture.url }}" alt="" class="w-7 h-7 rounded-full object-cover">
+                            {% else %}
+                            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent-blue to-accent-cyan flex items-center justify-center">
+                                <span class="text-[10px] font-bold text-white">{{ row.other.first_name.0|default:row.other.username.0|upper }}</span>
+                            </div>
+                            {% endif %}
+                            <span class="text-sm text-text-secondary">{{ row.participant_a.get_full_name_display }} &amp; {{ row.participant_b.get_full_name_display }}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        {% if row.last_message %}
+                        <span class="text-sm text-text-secondary truncate max-w-[200px] block">{{ row.last_message.content|truncatechars:50 }}</span>
+                        {% else %}
+                        <span class="text-sm text-text-muted">No message yet</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        {% if row.last_message %}
+                        <span class="text-xs text-text-muted">{{ row.last_message.timestamp|timesince }} ago</span>
+                        {% else %}
+                        <span class="text-xs text-text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        {% if row.unread_count > 0 %}
+                        <span class="px-2 py-0.5 text-[10px] font-medium bg-accent-blue/10 text-accent-blue rounded-md">{{ row.unread_count }}</span>
+                        {% else %}
+                        <span class="px-2 py-0.5 text-[10px] font-medium bg-bg-navy/10 text-text-muted rounded-md">0</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-4 py-8 text-center text-text-muted text-sm">
+                        No conversations found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

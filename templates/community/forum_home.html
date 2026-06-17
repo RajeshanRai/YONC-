@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-6xl mx-auto space-y-8">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-accent-blue/10 text-accent-blue shadow-sm">
+                    <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-accent-blue to-accent-cyan opacity-10"></div>
+                    <i class="fa-solid fa-comments text-3xl z-10"></i>
+                </div>
+                <div>
+                    <p class="text-sm uppercase tracking-[0.3em] text-text-muted">Community Forum</p>
+                    <h1 class="text-3xl font-bold text-text-primary">Join the conversation</h1>
+                    <p class="text-text-secondary mt-2">Ask questions, share advice, and connect with other Nepali youth across Canada.</p>
+                </div>
+            </div>
+            {% if user.is_authenticated %}
+                {% if user.is_expert or user.is_admin %}
+                <a href="{% url 'community:new_post' %}" class="px-5 py-3 bg-accent-blue hover:bg-blue-600 text-white rounded-full text-sm font-semibold transition-all">Create a Post</a>
+                {% else %}
+                <div class="px-5 py-3 rounded-full bg-bg-navy text-sm font-semibold text-text-muted">Regular members can comment on posts.</div>
+                {% endif %}
+            {% else %}
+            <a href="{% url 'login' %}?next={% url 'community:forum_home' %}" class="px-5 py-3 bg-accent-blue hover:bg-blue-600 text-white rounded-full text-sm font-semibold transition-all">Sign in to Participate</a>
+            {% endif %}
+        </div>
+
+        <div class="space-y-6">
+            <!-- Toolbar: search + stats -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+                <form action="{% url 'community:forum_home' %}" method="get" class="w-full md:max-w-lg">
+                    <div class="relative">
+                        <input name="q" type="search" placeholder="Search posts, authors..." value="{{ request.GET.q|default:'' }}" class="w-full px-4 py-2 pl-10 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted text-sm focus:outline-none focus:border-accent-blue transition-colors">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm"></i>
+                    </div>
+                </form>
+
+                <div class="flex items-center gap-3 text-sm text-text-muted">
+                    <div class="px-3 py-2 bg-bg-navy rounded-full">Showing <span class="font-semibold text-text-primary">{{ recent_posts|length }}</span> posts</div>
+                    <div class="px-3 py-2 bg-bg-navy rounded-full">Last updated: <span class="font-medium text-text-primary">{% if recent_posts %}{{ recent_posts.0.created_at|date:"M d, Y" }}{% else %}—{% endif %}</span></div>
+                </div>
+            </div>
+
+            <!-- Pinned posts (optional) -->
+            {% if pinned_posts %}
+            <div class="space-y-3">
+                <h3 class="text-sm font-semibold text-text-primary">Pinned</h3>
+                <div class="grid gap-3">
+                    {% for p in pinned_posts %}
+                    <a href="{% url 'community:post_detail' p.pk %}" class="block rounded-2xl border border-border-subtle bg-bg-surface p-4 hover:border-accent-blue/30 transition-all shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <img src="{{ p.author.get_profile_picture_url }}" alt="{{ p.author.username }}" class="w-10 h-10 rounded-full object-cover border border-border-subtle">
+                            <div>
+                                <p class="text-sm text-text-muted">{{ p.title }}</p>
+                                <p class="text-xs text-text-secondary">{{ p.author.get_full_name_display }} · {{ p.created_at|date:'M d, Y' }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Posts list -->
+            <div class="space-y-4">
+                {% for post in recent_posts %}
+                <a href="{% url 'community:post_detail' post.pk %}" class="block rounded-3xl border border-border-subtle bg-bg-surface p-6 hover:border-accent-blue/30 transition-all">
+                    <div class="flex items-start gap-4">
+                        <img src="{{ post.author.get_profile_picture_url }}" alt="{{ post.author.username }}" class="w-12 h-12 rounded-full object-cover border border-border-subtle mt-1">
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-sm text-text-muted">{{ post.author.get_full_name_display }} · {{ post.created_at|date:'M d, Y' }}</p>
+                                    <h2 class="text-lg font-semibold text-text-primary mt-1">{{ post.title }}</h2>
+                                </div>
+                                <div class="text-right text-xs text-text-muted">
+                                    <div class="uppercase tracking-[0.25em]">View thread</div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-text-secondary mt-3 line-clamp-2">{{ post.content|truncatechars:160 }}</p>
+                            <div class="mt-4 flex items-center gap-4 text-sm text-text-muted">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-regular fa-comment text-sm"></i>
+                                    <span>{{ post.comments.count }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-regular fa-thumbs-up text-sm"></i>
+                                    <span>{{ post.likes.count|default:0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="rounded-3xl border border-border-subtle bg-bg-surface p-6 text-center">
+                    <p class="text-text-secondary">No forum posts yet. Be the first to ask a question!</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination / load more -->
+            <div class="pt-4">
+                {% if is_paginated %}
+                <div class="flex items-center justify-center gap-3">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 rounded-lg bg-bg-navy text-text-secondary hover:bg-bg-navy-hover">Previous</a>
+                    {% endif %}
+                    <span class="text-sm text-text-muted">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 rounded-lg bg-bg-navy text-text-secondary hover:bg-bg-navy-hover">Next</a>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="flex justify-center">
+                    <button class="px-4 py-2 rounded-lg bg-bg-navy text-text-secondary" disabled>Load more</button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

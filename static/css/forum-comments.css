@@ -1,0 +1,44 @@
+/* Compact, Facebook-like comment styling */
+.comment-item{ display:flex; gap:0.75rem; padding:0.5rem 0; }
+.comment-avatar{ width:36px; height:36px; border-radius:50%; overflow:hidden; flex:0 0 36px; }
+.comment-body{ flex:1; }
+.comment-meta{ display:flex; gap:0.5rem; align-items:center; }
+.comment-author{ font-weight:600; font-size:0.95rem; }
+.comment-time{ color:#6b7280; font-size:0.8rem; }
+.comment-text{ margin-top:0.25rem; color:#111827; line-height:1.25rem; }
+.comment-actions{ margin-top:0.35rem; display:flex; gap:0.75rem; color:#6b7280; font-size:0.85rem; }
+.reply-form textarea.form-textarea{ min-height:38px; padding:6px; font-size:0.95rem; }
+.small-reply{ min-height:34px; max-height:90px; padding:6px 8px; font-size:0.9rem; }
+.btn-send{ display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; }
+.btn-send i{ font-size:14px; }
+
+/* Post content links: blue, underline on hover */
+.prose a{
+	color: #1a73e8; /* Google-blue-ish */
+	text-decoration: underline;
+}
+.prose a:hover{
+	color: #1558b0;
+}
+.prose a:visited{
+	color: #4b2c91;
+}
+
+/* utility hidden class used by JS toggles */
+.hidden{ display: none; }
+.replies-container{ margin-top:0.5rem; }
+.replies-container .comment-item{ padding:0.35rem 0; }
+
+/* tighter nested replies */
+.replies-container .comment-body{ font-size:0.95rem; }
+
+/* Action toolbar */
+.action-toolbar{ display:flex; align-items:center; justify-content:space-between; padding-top:0.5rem; }
+.action-toolbar .btn-like, .action-toolbar .btn-comment, .action-toolbar .btn-share{ background:transparent; border:0; color:inherit; cursor:pointer; padding:6px 10px; border-radius:999px; transition:background .15s, color .15s; font-size:0.95rem; }
+.action-toolbar .btn-like:hover, .action-toolbar .btn-comment:hover, .action-toolbar .btn-share:hover{ background:rgba(0,0,0,0.03); }
+.action-toolbar .btn-like.liked{ color:#1d4ed8; font-weight:600; }
+
+@media (max-width:640px){
+	.action-toolbar{ flex-direction:column; align-items:flex-start; gap:0.5rem; }
+	.action-toolbar .btn-like, .action-toolbar .btn-comment, .action-toolbar .btn-share{ padding:8px; }
+}

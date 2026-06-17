@@ -1,0 +1,112 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+
+<!-- Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-xl font-bold text-text-primary">Manage Experts</h1>
+        <p class="text-sm text-text-muted mt-1">{{ total_count }} expert{{ total_count|pluralize }} found</p>
+    </div>
+    <div class="flex gap-2">
+        <a href="?status=all" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all {% if status_filter == 'all' %}bg-accent-blue text-white{% else %}bg-bg-surface text-text-secondary hover:bg-bg-navy-hover{% endif %}">All</a>
+        <a href="?status=approved" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all {% if status_filter == 'approved' %}bg-success-green text-white{% else %}bg-bg-surface text-text-secondary hover:bg-bg-navy-hover{% endif %}">Approved</a>
+        <a href="?status=pending" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all {% if status_filter == 'pending' %}bg-yellow-500 text-white{% else %}bg-bg-surface text-text-secondary hover:bg-bg-navy-hover{% endif %}">Pending</a>
+    </div>
+</div>
+
+<!-- Experts Table -->
+<div class="bg-bg-navy border border-border-subtle rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="bg-bg-navy-hover border-b border-border-subtle">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Expert</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Category</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Location</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Experience</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border-subtle">
+                {% for expert in experts %}
+                <tr class="hover:bg-bg-navy-hover transition-colors" id="expert-row-{{ expert.id }}">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            {% if expert.user.profile_picture and expert.user.profile_picture.url != '/media/' %}
+                            <img src="{{ expert.user.profile_picture.url }}" alt="" class="w-9 h-9 rounded-full object-cover">
+                            {% else %}
+                            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-accent-blue to-accent-cyan flex items-center justify-center">
+                                <span class="text-xs font-bold text-white">{{ expert.get_initials }}</span>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <p class="text-sm font-medium text-text-primary">{{ expert.user.get_full_name_display }}</p>
+                                <p class="text-xs text-text-muted">@{{ expert.user.username }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="text-sm text-text-secondary">{{ expert.category.name }}</span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="text-sm text-text-secondary">{{ expert.city }}, {{ expert.get_province_display }}</span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="text-sm text-text-secondary">{{ expert.years_experience }} years</span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-0.5 text-[10px] font-medium rounded-md {% if expert.is_approved %}bg-success-green/10 text-success-green{% else %}bg-yellow-500/10 text-yellow-500{% endif %}">
+                            {% if expert.is_approved %}Approved{% else %}Pending{% endif %}
+                        </span>
+                        {% if expert.is_featured %}
+                        <span class="ml-1 px-2 py-0.5 text-[10px] font-medium bg-accent-cyan/10 text-accent-cyan rounded-md">Featured</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-1">
+                            <a href="{% url 'expert_detail' expert.pk %}" class="p-1.5 rounded-lg text-text-muted hover:text-accent-blue hover:bg-bg-surface transition-all" title="View Profile">
+                                <i class="fa-solid fa-eye text-xs"></i>
+                            </a>
+                            <button onclick="toggleFeatured({{ expert.id }})" class="p-1.5 rounded-lg text-text-muted hover:text-accent-cyan hover:bg-bg-surface transition-all" title="Toggle Featured">
+                                <i class="fa-solid fa-star text-xs {% if expert.is_featured %}text-accent-cyan{% endif %}"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-4 py-8 text-center text-text-muted text-sm">
+                        No experts found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function toggleFeatured(expertId) {
+    if (!appConfirm('Toggle featured status for this expert?')) return;
+    
+    fetch(`/dashboard/api/experts/${expertId}/toggle-featured/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        }
+    });
+}
+</script>
+
+{% endblock %}

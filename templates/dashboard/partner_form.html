@@ -1,0 +1,73 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="max-w-3xl mx-auto bg-bg-navy border border-border-subtle rounded-xl p-6">
+    <div class="mb-6">
+        <h1 class="text-xl font-bold text-text-primary">{{ title }}</h1>
+        <p class="text-sm text-text-muted mt-1">Use this form to manage About page partner entries.</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 gap-6">
+            <div>
+                <label class="block text-xs font-semibold text-text-muted uppercase mb-2">Partner Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <p class="text-xs text-emergency-red mt-1">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-text-muted uppercase mb-2">Website</label>
+                {{ form.website }}
+                {% if form.website.errors %}
+                <p class="text-xs text-emergency-red mt-1">{{ form.website.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-text-muted uppercase mb-2">Logo</label>
+                {{ form.logo }}
+                {% if form.logo.errors %}
+                <p class="text-xs text-emergency-red mt-1">{{ form.logo.errors.0 }}</p>
+                {% endif %}
+                {% if is_edit and partner.logo %}
+                <p class="text-xs text-text-secondary mt-2">Current file: {{ partner.logo.name }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-text-muted uppercase mb-2">Description</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <p class="text-xs text-emergency-red mt-1">{{ form.description.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-semibold text-text-muted uppercase mb-2">Sort Order</label>
+                    {{ form.sort_order }}
+                    {% if form.sort_order.errors %}
+                    <p class="text-xs text-emergency-red mt-1">{{ form.sort_order.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div class="flex items-center gap-3 mt-6">
+                    {{ form.is_active }}
+                    <label class="text-sm text-text-secondary">Active</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 mt-4">
+            <button type="submit" class="px-5 py-3 bg-accent-blue text-white rounded-lg hover:bg-blue-600 transition-all">Save Partner</button>
+            <a href="{% url 'manage_partners' %}" class="px-5 py-3 border border-border-subtle rounded-lg text-text-secondary hover:bg-bg-navy-hover transition-all">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

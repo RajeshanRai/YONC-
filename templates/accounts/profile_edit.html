@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="{% url 'profile' %}" class="text-sm text-text-muted hover:text-text-secondary transition-colors inline-flex items-center gap-1 mb-4">
+                <i class="fa-solid fa-arrow-left text-xs"></i> Back to Profile
+            </a>
+            <h1 class="text-2xl font-bold text-text-primary">Edit Profile</h1>
+            <p class="text-text-secondary mt-1">Update your personal information</p>
+        </div>
+        
+        <!-- Form -->
+        <div class="bg-bg-navy border border-border-subtle rounded-xl p-6 md:p-8">
+            <form method="post" enctype="multipart/form-data" class="space-y-5">
+                {% csrf_token %}
+                
+                <!-- Profile Picture -->
+                <div class="flex items-center gap-4 mb-6">
+                    {% if user.profile_picture and user.profile_picture.url != '/media/' %}
+                    <img src="{{ user.profile_picture.url }}" alt="Current" class="w-20 h-20 rounded-full object-cover border-2 border-border-subtle">
+                    {% else %}
+                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-accent-blue to-accent-cyan flex items-center justify-center border-2 border-border-subtle">
+                        <span class="text-2xl font-bold text-white">{{ user.first_name.0|default:user.username.0|upper }}</span>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">Profile Picture</label>
+                        <input type="file" name="profile_picture" accept="image/*"
+                               class="block w-full text-sm text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-bg-surface file:text-text-secondary hover:file:bg-bg-navy-hover">
+                    </div>
+                </div>
+                
+                <!-- Name Row -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">First Name</label>
+                        <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}"
+                               class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary focus:outline-none focus:border-accent-blue transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">Last Name</label>
+                        <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}"
+                               class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary focus:outline-none focus:border-accent-blue transition-colors">
+                    </div>
+                </div>
+                
+                <!-- Email -->
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-2">Email</label>
+                    <input type="email" name="email" value="{{ form.email.value|default:'' }}"
+                           class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary focus:outline-none focus:border-accent-blue transition-colors">
+                </div>
+                
+                <!-- Phone -->
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-2">Phone Number</label>
+                    <input type="tel" name="phone_number" value="{{ form.phone_number.value|default:'' }}"
+                           class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary focus:outline-none focus:border-accent-blue transition-colors">
+                </div>
+                
+                <!-- Location Row -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">Province</label>
+                        <select name="province"
+                                class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary focus:outline-none focus:border-accent-blue transition-colors appearance-none">
+                            <option value="">Select province</option>
+                            {% for code, name in user.PROVINCE_CHOICES %}
+                            <option value="{{ code }}" {% if form.province.value == code %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">City</label>
+                        <input type="text" name="city" value="{{ form.city.value|default:'' }}"
+                               class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary focus:outline-none focus:border-accent-blue transition-colors">
+                    </div>
+                </div>
+                
+                <!-- Bio -->
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-2">Bio</label>
+                    <textarea name="bio" rows="4"
+                              class="w-full px-4 py-3 rounded-lg bg-bg-surface border border-border-subtle text-text-primary focus:outline-none focus:border-accent-blue transition-colors resize-none">{{ form.bio.value|default:'' }}</textarea>
+                </div>
+                
+                <!-- Buttons -->
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="px-6 py-3 bg-accent-blue hover:bg-blue-600 text-white font-medium rounded-lg transition-all">
+                        Save Changes
+                    </button>
+                    <a href="{% url 'profile' %}" class="px-6 py-3 border border-border-subtle text-text-secondary hover:text-text-primary rounded-lg transition-all">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

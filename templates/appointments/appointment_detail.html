@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-bg-surface rounded-3xl border border-border-subtle p-8 shadow-sm">
+            <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+                <div>
+                    <p class="text-sm uppercase tracking-[0.3em] text-text-muted">Appointment</p>
+                    <h1 class="text-2xl font-semibold text-text-primary">{{ appointment.subject }}</h1>
+                </div>
+                <span class="inline-flex items-center gap-2 text-sm font-medium text-text-secondary px-4 py-2 rounded-full bg-bg-navy">
+                    Status: {{ appointment.get_status_display }}
+                </span>
+            </div>
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="rounded-3xl border border-border-subtle p-6 bg-bg-navy-hover">
+                    <h2 class="text-sm font-semibold text-text-primary mb-3">Expert</h2>
+                    <p class="text-sm font-medium text-text-primary">{{ appointment.expert.user.get_full_name_display }}</p>
+                    <p class="text-sm text-text-muted mt-2">{{ appointment.expert.category.name }}</p>
+                    <p class="text-sm text-text-muted mt-2">{{ appointment.expert.city }}, {{ appointment.expert.get_province_display }}</p>
+                </div>
+                <div class="rounded-3xl border border-border-subtle p-6 bg-bg-navy-hover">
+                    <h2 class="text-sm font-semibold text-text-primary mb-3">Schedule</h2>
+                    <p class="text-sm text-text-secondary">{{ appointment.timeslot.get_display_window }}</p>
+                    <p class="text-sm text-text-muted mt-2">Booked on {{ appointment.created_at|date:'M d, Y \a\t h:i A' }}</p>
+                </div>
+            </div>
+            <div class="mt-6 rounded-3xl border border-border-subtle p-6 bg-bg-surface">
+                <h2 class="text-sm font-semibold text-text-primary mb-3">Notes</h2>
+                <p class="text-sm text-text-secondary">{{ appointment.notes|default:'No notes provided.' }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-10 px-4">
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-bg-surface rounded-3xl border border-border-subtle p-8 shadow-sm">
+            <h1 class="text-2xl font-semibold text-text-primary mb-4">Book your consultation</h1>
+            <p class="text-text-secondary mb-6">Consultation with {{ timeslot.expert.user.get_full_name_display }} on {{ timeslot.get_display_window }}.</p>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">Topic</label>
+                    {{ form.subject }}
+                    {% if form.subject.errors %}
+                    <p class="text-emergency-red text-sm mt-1">{{ form.subject.errors }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">Notes</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                    <p class="text-emergency-red text-sm mt-1">{{ form.notes.errors }}</p>
+                    {% endif %}
+                </div>
+                <div class="flex flex-col sm:flex-row items-center gap-3">
+                    <button type="submit" class="px-6 py-3 bg-accent-blue hover:bg-blue-600 text-white rounded-full text-sm font-semibold transition-all">Confirm Booking</button>
+                    <a href="{% url 'expert_detail' timeslot.expert.pk %}" class="text-sm text-text-secondary hover:text-text-primary">Back to expert profile</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

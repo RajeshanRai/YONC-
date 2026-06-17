@@ -1,0 +1,101 @@
+{% load humanize %}
+<!-- Expert Card Component -->
+<div class="group bg-bg-navy border border-border-subtle rounded-xl overflow-hidden hover:border-accent-blue/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent-blue/10 transition-all duration-300">
+    
+    <!-- Card Header with Avatar -->
+    <div class="p-5 pb-3">
+        <div class="flex items-start gap-4">
+            <!-- Avatar -->
+            <div class="relative flex-shrink-0">
+                {% if expert.user.profile_picture and expert.user.profile_picture.url != '/media/' %}
+                <img src="{{ expert.user.profile_picture.url }}" alt="{{ expert.user.get_full_name_display }}" 
+                     class="w-16 h-16 rounded-full object-cover border-2 border-accent-cyan">
+                {% else %}
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-accent-blue to-accent-cyan flex items-center justify-center border-2 border-accent-cyan">
+                    <span class="text-lg font-bold text-white">{{ expert.get_initials }}</span>
+                </div>
+                {% endif %}
+                {% if expert.is_available %}
+                <span class="absolute bottom-0 right-0 w-4 h-4 bg-success-green border-2 border-bg-navy rounded-full" title="Available"></span>
+                {% endif %}
+            </div>
+            
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+                <h3 class="text-base font-semibold text-text-primary truncate group-hover:text-accent-cyan transition-colors">
+                    {{ expert.user.get_full_name_display }}
+                </h3>
+                <span class="inline-block mt-1 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider rounded-md" 
+                      style="background-color: {{ expert.category.color }}20; color: {{ expert.category.color }};">
+                    {{ expert.category.name }}
+                </span>
+                <div class="flex items-center gap-2 mt-1.5 text-xs text-text-muted">
+                    <i class="fa-solid fa-location-dot text-[10px]"></i>
+                    <span>{{ expert.city }}, {{ expert.get_province_display }}</span>
+                </div>
+            </div>
+            
+            <!-- Featured Badge -->
+            {% if expert.is_featured %}
+            <div class="flex-shrink-0" title="Top Expert">
+                <i class="fa-solid fa-star text-accent-cyan text-sm"></i>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Card Body -->
+    <div class="px-5 py-2">
+        <p class="text-sm text-text-secondary line-clamp-2 leading-relaxed">
+            {{ expert.bio|truncatewords:20|default:"Experienced professional ready to help the community." }}
+        </p>
+        
+        <!-- Meta Info -->
+        <div class="flex items-center gap-4 mt-3 text-xs text-text-muted">
+            <span class="flex items-center gap-1">
+                <i class="fa-solid fa-briefcase text-[10px]"></i>
+                {{ expert.years_experience }}+ years
+            </span>
+            {% if expert.total_reviews > 0 %}
+            <span class="flex items-center gap-1">
+                <i class="fa-solid fa-star text-[10px] text-yellow-500"></i>
+                {{ expert.rating }} ({{ expert.total_reviews }})
+            </span>
+            {% endif %}
+        </div>
+        
+        <!-- Specialties -->
+        {% with specialties=expert.get_specialties_list %}
+        {% if specialties %}
+        <div class="flex flex-wrap gap-1.5 mt-3">
+            {% for specialty in specialties|slice:":3" %}
+            <span class="px-2 py-0.5 text-[10px] font-medium bg-bg-surface text-text-secondary rounded-md border border-border-subtle">
+                {{ specialty }}
+            </span>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+    
+    <!-- Card Footer / Actions -->
+    <div class="px-5 py-4 border-t border-border-subtle flex gap-2">
+        <a href="{% url 'expert_detail' expert.pk %}" 
+           class="flex-1 px-3 py-2 text-xs font-medium text-text-secondary border border-border-subtle rounded-lg hover:bg-bg-navy-hover hover:text-text-primary transition-all text-center">
+            View Profile
+        </a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'start_chat' expert.pk %}" 
+           class="flex-1 px-3 py-2 text-xs font-medium bg-accent-blue hover:bg-blue-600 text-white rounded-lg transition-all text-center flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-paper-plane text-[10px]"></i>
+            Message
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}?next={% url 'expert_detail' expert.pk %}" 
+           class="flex-1 px-3 py-2 text-xs font-medium bg-accent-blue hover:bg-blue-600 text-white rounded-lg transition-all text-center flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-paper-plane text-[10px]"></i>
+            Message
+        </a>
+        {% endif %}
+    </div>
+</div>

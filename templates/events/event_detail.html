@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Image -->
+<div class="relative w-full h-96 overflow-hidden bg-gradient-to-b from-bg-navy to-bg-navy-hover">
+    {% if event.image %}
+    <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-full h-full object-cover opacity-70">
+    {% else %}
+    <div class="w-full h-full flex items-center justify-center">
+        <i class="fa-solid fa-calendar-days text-7xl text-accent-blue/20"></i>
+    </div>
+    {% endif %}
+    <div class="absolute inset-0 bg-gradient-to-t from-bg-navy via-bg-navy/40 to-transparent"></div>
+</div>
+
+<!-- Main Content -->
+<section class="py-12 px-4 relative -mt-20 z-10">
+    <div class="max-w-5xl mx-auto">
+        <!-- Header Card -->
+        <div class="bg-gradient-to-br from-bg-surface to-bg-navy-hover rounded-3xl border border-border-subtle p-8 md:p-12 shadow-xl">
+            <!-- Title & Status Badge -->
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-6">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-xs uppercase tracking-[0.3em] font-semibold text-accent-cyan bg-accent-cyan/10 px-3 py-1 rounded-full">Upcoming Event</span>
+                        {% if event.is_ticketed and event.price > 0 %}
+                        <span class="text-sm font-bold text-white bg-accent-blue px-3 py-1 rounded-full">${{ event.price }}</span>
+                        {% elif event.is_ticketed %}
+                        <span class="text-sm font-bold text-white bg-success-green px-3 py-1 rounded-full">Free</span>
+                        {% endif %}
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-text-primary leading-tight">{{ event.title }}</h1>
+                </div>
+            </div>
+
+            <!-- Key Info Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Date & Time -->
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-accent-blue/10 flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-calendar-days text-accent-blue text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-text-muted font-semibold">Date & Time</p>
+                        <p class="text-lg font-semibold text-text-primary mt-1">{{ event.start_time|date:"l, F j, Y" }}</p>
+                        <p class="text-sm text-text-secondary mt-1">{{ event.start_time|date:"g:i A" }} - {{ event.end_time|date:"g:i A" }}</p>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl {% if event.is_online %}bg-success-green/10{% else %}bg-accent-cyan/10{% endif %} flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid {% if event.is_online %}fa-video{% else %}fa-map-pin{% endif %} {% if event.is_online %}text-success-green{% else %}text-accent-cyan{% endif %} text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-text-muted font-semibold">Location</p>
+                        <p class="text-lg font-semibold text-text-primary mt-1">{% if event.is_online %}Virtual Event{% else %}{{ event.location|default:'On-site' }}{% endif %}</p>
+                        <p class="text-sm text-text-secondary mt-1">{{ event.location|default:'Join online from anywhere' }}</p>
+                    </div>
+                </div>
+
+                <!-- Capacity Status (if ticketed) -->
+                {% if event.is_ticketed %}
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl {% if event.is_full %}bg-emergency-red/10{% else %}bg-accent-cyan/10{% endif %} flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-users {% if event.is_full %}text-emergency-red{% else %}text-accent-cyan{% endif %} text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-text-muted font-semibold">Availability</p>
+                        {% if event.is_full %}
+                        <p class="text-lg font-semibold text-emergency-red mt-1">Fully Booked</p>
+                        <p class="text-sm text-text-secondary mt-1">This event has reached capacity</p>
+                        {% else %}
+                        <p class="text-lg font-semibold text-text-primary mt-1">{{ event.seats_remaining }} seats</p>
+                        <p class="text-sm text-text-secondary mt-1">out of {{ event.total_seats }} available</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="flex items-start gap-4">
+                    <div class="flex-1">
+                        <div class="w-full bg-bg-navy rounded-full h-2 overflow-hidden">
+                            <div class="bg-gradient-to-r from-accent-blue to-accent-cyan h-full transition-all" style="width: {{ capacity_percentage }}%"></div>
+                        </div>
+                        <p class="text-xs text-text-muted mt-2">{{ event.registered_count }} registrations</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="mt-8 grid gap-8">
+            <!-- Description -->
+            <div class="bg-bg-surface rounded-3xl border border-border-subtle p-8 md:p-10">
+                <h2 class="text-2xl font-bold text-text-primary mb-4">About This Event</h2>
+                <p class="text-text-secondary leading-relaxed whitespace-pre-line text-base">{{ event.description }}</p>
+            </div>
+
+            <!-- Registration Section -->
+            {% if event.is_ticketed or event.registration_url %}
+            <div class="bg-gradient-to-br from-accent-blue/5 to-accent-cyan/5 rounded-3xl border border-border-subtle p-8 md:p-10">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-text-primary mb-2">Ready to Join?</h2>
+                        <p class="text-text-secondary">
+                            {% if event.is_full %}
+                                This event has reached full capacity.
+                            {% elif event.price > 0 %}
+                                Secure your spot for ${{ event.price }}
+                            {% else %}
+                                Join this free event
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <!-- Registration Button -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        {% if event.is_full %}
+                            <span class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-text-disabled text-text-muted rounded-full text-sm font-bold cursor-not-allowed whitespace-nowrap">
+                                <i class="fa-solid fa-circle-xmark"></i>Registration Closed
+                            </span>
+                        {% elif user.is_authenticated %}
+                            {% if has_registered %}
+                                <form action="{% url 'events:unregister_for_event' event.pk %}" method="post" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-emergency-red hover:bg-red-700 text-white rounded-full text-sm font-bold transition-all duration-200 whitespace-nowrap">
+                                        <i class="fa-solid fa-trash-alt"></i>Cancel Registration
+                                    </button>
+                                </form>
+                                <p class="text-sm text-success-green flex items-center gap-2 mt-2 sm:mt-0">
+                                    <i class="fa-solid fa-check-circle"></i>You're registered!
+                                </p>
+                            {% else %}
+                                <form action="{% url 'events:register_for_event' event.pk %}" method="post" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-accent-blue to-accent-cyan hover:shadow-lg hover:shadow-accent-blue/30 text-white rounded-full text-sm font-bold transition-all duration-200 whitespace-nowrap">
+                                        <i class="fa-solid fa-check"></i>Register Now
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'login' %}?next={% url 'events:event_detail' event.pk %}" class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-accent-blue to-accent-cyan hover:shadow-lg hover:shadow-accent-blue/30 text-white rounded-full text-sm font-bold transition-all duration-200 whitespace-nowrap">
+                                <i class="fa-solid fa-sign-in-alt"></i>Sign In to Register
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if event.registration_url and not event.is_ticketed %}
+                <div class="mt-6 pt-6 border-t border-border-subtle">
+                    <p class="text-sm text-text-secondary mb-3">External registration available:</p>
+                    <a href="{{ event.registration_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-6 py-2 bg-bg-surface hover:bg-bg-navy-hover text-text-primary rounded-full text-sm font-semibold transition-all">
+                        <i class="fa-solid fa-external-link"></i>Visit Registration Page
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Back Link -->
+            <div class="text-center">
+                <a href="{% url 'events:event_list' %}" class="inline-flex items-center gap-2 text-accent-blue hover:text-accent-cyan transition-colors font-semibold">
+                    <i class="fa-solid fa-arrow-left"></i>Back to All Events
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
