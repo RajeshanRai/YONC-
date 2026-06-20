@@ -140,9 +140,9 @@ MESSAGE_TAGS = {
 DEFAULT_FROM_EMAIL = 'rajeshanrai.official@gmail.com'
 EMAIL_BACKEND = os.environ.get('DJANGO_EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = os.environ.get('DJANGO_EMAIL_HOST')
-EMAIL_PORT = os.environ.get('DJANGO_EMAIL_PORT')
+EMAIL_PORT = int(os.environ.get('DJANGO_EMAIL_PORT')) if os.environ.get('DJANGO_EMAIL_PORT') else None
 EMAIL_HOST_USER = os.environ.get('DJANGO_EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('DJANGO_EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = os.environ.get('DJANGO_EMAIL_USE_TLS') == 'True'
 EMAIL_USE_SSL = os.environ.get('DJANGO_EMAIL_USE_SSL') == 'True'
-EMAIL_TIMEOUT = os.environ.get('DJANGO_EMAIL_TIMEOUT')
+EMAIL_TIMEOUT = int(os.environ.get('DJANGO_EMAIL_TIMEOUT')) if os.environ.get('DJANGO_EMAIL_TIMEOUT') else None
