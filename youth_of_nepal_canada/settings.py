@@ -10,13 +10,33 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
+
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None or value == '':
+        return default
+    return value.lower() in ('true', '1', 'yes', 'on')
+
+
+def env_int(name, default=None):
+    value = os.environ.get(name)
+    return int(value) if value not in (None, '') else default
+
+
+def env_list(name, default=None, sep=','):
+    value = os.environ.get(name)
+    if value is None or value == '':
+        return default if default is not None else []
+    return [item.strip() for item in value.split(sep) if item.strip()]
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
+DEBUG = env_bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS', ['*'])
 
 # Application definition
 INSTALLED_APPS = [
@@ -140,9 +160,9 @@ MESSAGE_TAGS = {
 DEFAULT_FROM_EMAIL = 'rajeshanrai.official@gmail.com'
 EMAIL_BACKEND = os.environ.get('DJANGO_EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = os.environ.get('DJANGO_EMAIL_HOST')
-EMAIL_PORT = int(os.environ.get('DJANGO_EMAIL_PORT')) if os.environ.get('DJANGO_EMAIL_PORT') else None
+EMAIL_PORT = env_int('DJANGO_EMAIL_PORT')
 EMAIL_HOST_USER = os.environ.get('DJANGO_EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('DJANGO_EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = os.environ.get('DJANGO_EMAIL_USE_TLS') == 'True'
-EMAIL_USE_SSL = os.environ.get('DJANGO_EMAIL_USE_SSL') == 'True'
-EMAIL_TIMEOUT = int(os.environ.get('DJANGO_EMAIL_TIMEOUT')) if os.environ.get('DJANGO_EMAIL_TIMEOUT') else None
+EMAIL_USE_TLS = env_bool('DJANGO_EMAIL_USE_TLS', False)
+EMAIL_USE_SSL = env_bool('DJANGO_EMAIL_USE_SSL', False)
+EMAIL_TIMEOUT = env_int('DJANGO_EMAIL_TIMEOUT')

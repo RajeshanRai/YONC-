@@ -1,0 +1,17 @@
+# Normalize line endings across platforms
+* text=auto
+
+# Keep Python files LF-only in the repository and working tree
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+
+# Binary files should not be normalized
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
