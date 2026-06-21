@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tools-page {
+        min-height: calc(100vh - 64px);
+        background: linear-gradient(145deg, #f8fafc 0%, #eef2ff 55%, #dbeafe 100%);
+        padding: 1rem;
+    }
+
+    .tools-shell {
+        max-width: 1080px;
+        margin: 0 auto;
+    }
+
+    .tools-header {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.95rem;
+        padding: 1rem 1.1rem;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
+        margin-bottom: 0.9rem;
+    }
+
+    .tools-header h1 {
+        margin: 0 0 0.35rem;
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .tools-header p {
+        margin: 0;
+        font-size: 0.86rem;
+        color: #475569;
+    }
+
+    .tool-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 0.9rem;
+    }
+
+    .tool-card {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.9rem;
+        padding: 0.95rem;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .tool-badge {
+        align-self: flex-start;
+        background: #dbeafe;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        padding: 0.14rem 0.5rem;
+    }
+
+    .tool-card h2 {
+        margin: 0;
+        font-size: 1rem;
+        color: #0f172a;
+    }
+
+    .tool-card p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        flex: 1;
+    }
+
+    .tool-action {
+        align-self: flex-start;
+        text-decoration: none;
+        background: #2563eb;
+        color: #ffffff;
+        border-radius: 0.62rem;
+        padding: 0.46rem 0.72rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .tool-action:hover {
+        background: #1d4ed8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tools-page">
+    <div class="tools-shell">
+        <div class="tools-header">
+            <h1>Tools</h1>
+            <p>Use smart productivity tools designed for youth career growth and daily support.</p>
+        </div>
+
+        <div class="tool-grid">
+            {% for tool in tools %}
+            <article class="tool-card">
+                <span class="tool-badge">{{ tool.badge }}</span>
+                <h2>{{ tool.name }}</h2>
+                <p>{{ tool.description }}</p>
+                <a href="{{ tool.url }}" class="tool-action">Open Tool</a>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

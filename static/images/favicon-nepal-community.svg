@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Nepal community favicon">
+  <rect width="64" height="64" rx="12" fill="#0b4ea2"/>
+  <path d="M13 10 L46 10 L33 25 L51 25 L21 56 L21 38 L13 38 Z" fill="#dc143c" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="28" cy="20" r="3.2" fill="#ffffff"/>
+  <circle cx="31" cy="33" r="3.2" fill="#ffffff"/>
+  <circle cx="40.5" cy="33" r="2.7" fill="#ffffff"/>
+  <path d="M24 45 C28 41 34 41 38 45" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round"/>
+  <circle cx="28" cy="40.5" r="2" fill="#ffffff"/>
+  <circle cx="36" cy="40.5" r="2" fill="#ffffff"/>
+</svg>

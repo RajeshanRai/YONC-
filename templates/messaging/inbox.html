@@ -56,7 +56,14 @@
                     </div>
                     {% if item.last_message %}
                     <p class="text-sm text-text-muted truncate {% if item.unread_count > 0 %}text-text-secondary font-medium{% endif %}">
-                        {% if item.last_message.sender == request.user %}You: {% endif %}{{ item.last_message.content|truncatechars:60 }}
+                        {% if item.last_message.sender == request.user %}You: {% endif %}
+                        {% if item.last_message.content %}
+                        {{ item.last_message.content|truncatechars:60 }}
+                        {% elif item.last_message.attachment %}
+                        Attachment: {{ item.last_message.get_attachment_name|truncatechars:45 }}
+                        {% else %}
+                        Message
+                        {% endif %}
                     </p>
                     {% else %}
                     <p class="text-sm text-text-muted">Start a conversation...</p>

@@ -10,6 +10,7 @@ urlpatterns = [
     path('dashboard/', views.expert_dashboard, name='expert_dashboard'),
     path('dashboard/edit/', views.expert_profile_edit, name='expert_profile_edit'),
     path('dashboard/availability/', views.expert_availability, name='expert_availability'),
+    path('dashboard/availability/<int:pk>/edit/', views.expert_availability_edit, name='expert_availability_edit'),
     path('dashboard/availability/<int:pk>/delete/', views.expert_availability_delete, name='expert_availability_delete'),
     path('dashboard/experience/', views.expert_experience, name='expert_experience'),
     path('dashboard/experience/<int:pk>/delete/', views.expert_experience_delete, name='expert_experience_delete'),

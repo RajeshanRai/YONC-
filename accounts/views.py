@@ -2,7 +2,9 @@ from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.http import JsonResponse
 from django.template.loader import render_to_string
@@ -14,6 +16,10 @@ from messaging.models import Message
 from services.models import ServiceCategory
 from .forms import EmailVerificationForm, UserRegistrationForm, UserLoginForm, UserProfileUpdateForm
 from .models import EmailVerificationCode, User, PendingUserRegistration
+
+
+def _is_admin_user(user):
+    return user.is_authenticated and user.is_admin()
 
 
 def send_verification_email(request, email, code):
@@ -216,6 +222,8 @@ def login_view(request):
     """Handle user login."""
     if request.user.is_authenticated:
         return redirect('home')
+
+    login_error = None
     
     if request.method == 'POST':
         form = UserLoginForm(request, data=request.POST)
@@ -228,16 +236,33 @@ def login_view(request):
                 messages.success(request, f'Welcome back, {user.first_name or user.username}!')
                 next_url = request.GET.get('next', 'home')
                 return redirect(next_url)
-            messages.error(request, 'Invalid username or password.')
+            login_error = 'Invalid username or password.'
         else:
+            username = request.POST.get('username', '').strip()
+            blocked_user = User.objects.filter(
+                username=username,
+                is_blocked_for_chat_violations=True,
+            ).first()
+            if blocked_user:
+                login_error = 'Your account is blocked due to repeated spam/hate/bullying violations.'
+                return render(request, 'accounts/login.html', {
+                    'form': form,
+                    'title': 'Sign In',
+                    'login_error': login_error,
+                })
+
             if form.errors.get('__all__'):
-                messages.error(request, form.errors['__all__'])
+                login_error = form.errors['__all__'][0]
             else:
-                messages.error(request, 'Invalid username or password.')
+                login_error = 'Invalid username or password.'
     else:
         form = UserLoginForm()
     
-    return render(request, 'accounts/login.html', {'form': form, 'title': 'Sign In'})
+    return render(request, 'accounts/login.html', {
+        'form': form,
+        'title': 'Sign In',
+        'login_error': login_error,
+    })
 
 
 def logout_view(request):
@@ -307,3 +332,67 @@ def mark_messages_read(request):
     """AJAX endpoint to mark all messages as read."""
     Message.objects.filter(receiver=request.user, is_read=False).update(is_read=True)
     return JsonResponse({'status': 'success'})
+
+
+@login_required
+@user_passes_test(_is_admin_user)
+def moderation_dashboard_view(request):
+    """Admin moderation dashboard for violation monitoring and account unblocking."""
+    status = request.GET.get('status', 'all')
+    min_violations_raw = request.GET.get('min_violations', '1')
+    page_number = request.GET.get('page', '1')
+
+    try:
+        min_violations = int(min_violations_raw)
+    except (TypeError, ValueError):
+        min_violations = 1
+    min_violations = max(0, min_violations)
+
+    users_qs = User.objects.filter(
+        chat_violation_count__gte=min_violations,
+    )
+
+    if status == 'blocked':
+        users_qs = users_qs.filter(is_blocked_for_chat_violations=True)
+    elif status == 'active':
+        users_qs = users_qs.filter(is_blocked_for_chat_violations=False)
+    else:
+        status = 'all'
+
+    users_qs = users_qs.order_by('-is_blocked_for_chat_violations', '-chat_violation_count', 'username')
+    paginator = Paginator(users_qs, 10)
+    users = paginator.get_page(page_number)
+
+    blocked_users = User.objects.filter(is_blocked_for_chat_violations=True).count()
+
+    context = {
+        'users': users,
+        'total_users': users_qs.count(),
+        'blocked_users': blocked_users,
+        'status_filter': status,
+        'min_violations_filter': min_violations,
+        'title': 'Chat Moderation Dashboard',
+    }
+    return render(request, 'accounts/moderation_dashboard.html', context)
+
+
+@login_required
+@user_passes_test(_is_admin_user)
+@require_POST
+def unblock_moderated_user_view(request, pk):
+    """Manually unblock a user that was blocked by chat moderation policy."""
+    user = get_object_or_404(User, pk=pk)
+
+    user.is_active = True
+    user.is_blocked_for_chat_violations = False
+    user.chat_blocked_at = None
+    user.chat_violation_count = 0
+    user.save(update_fields=[
+        'is_active',
+        'is_blocked_for_chat_violations',
+        'chat_blocked_at',
+        'chat_violation_count',
+    ])
+
+    messages.success(request, f'{user.username} has been unblocked and violation count reset.')
+    return redirect('moderation_dashboard')

@@ -19,6 +19,7 @@
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                     <div>
                         <p class="text-sm text-text-muted">{{ appointment.expert.category.name }} · {{ appointment.get_appointment_window }}</p>
+                        <p class="text-xs text-text-muted mt-1">Shown in your timezone: {{ current_timezone }}</p>
                         <h2 class="text-lg font-semibold text-text-primary mt-2">{{ appointment.subject }}</h2>
                         <p class="text-sm text-text-secondary mt-2 line-clamp-2">{{ appointment.notes|default:'No additional notes.' }}</p>
                     </div>

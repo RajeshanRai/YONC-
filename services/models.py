@@ -26,5 +26,10 @@ class ServiceCategory(models.Model):
     def get_absolute_url(self):
         return reverse('expert_list_by_category', kwargs={'category_slug': self.slug})
     
+    @property
+    def color_with_alpha(self):
+        """Return the category hex color with a low alpha suffix for light backgrounds."""
+        return f"{self.color}20"
+    
     def get_icon_html(self):
         return f'<i class="{self.icon_class}"></i>'

@@ -27,8 +27,7 @@ def book_appointment(request, timeslot_id):
             appointment.timeslot = timeslot
             appointment.status = Appointment.STATUS_CONFIRMED
             appointment.save()
-            timeslot.is_booked = True
-            timeslot.save(update_fields=['is_booked'])
+            timeslot.update_booked_status()
 
             # Send basic confirmation email if email backend is configured.
             if request.user.email and timeslot.expert.user.email:

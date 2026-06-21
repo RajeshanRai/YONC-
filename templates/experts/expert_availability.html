@@ -35,6 +35,34 @@
                         <p class="text-sm text-emergency-red mt-2">{{ form.end_time.errors.0 }}</p>
                         {% endif %}
                     </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-text-secondary mb-2">Capacity</label>
+                        {{ form.capacity }}
+                        {% if form.capacity.errors %}
+                        <p class="text-sm text-emergency-red mt-2">{{ form.capacity.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-text-secondary mb-2">Discussion Topic</label>
+                        {{ form.discussion_topic }}
+                        {% if form.discussion_topic.errors %}
+                        <p class="text-sm text-emergency-red mt-2">{{ form.discussion_topic.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-text-secondary mb-2">Meeting Link</label>
+                        {{ form.meeting_link }}
+                        {% if form.meeting_link.errors %}
+                        <p class="text-sm text-emergency-red mt-2">{{ form.meeting_link.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-text-secondary mb-2">Days of Week</label>
+                        {{ form.days_of_week }}
+                        {% if form.days_of_week.errors %}
+                        <p class="text-sm text-emergency-red mt-2">{{ form.days_of_week.errors.0 }}</p>
+                        {% endif %}
+                    </div>
                     {% if form.non_field_errors %}
                         <div class="rounded-2xl bg-emergency-red/10 border border-emergency-red/40 p-3 text-sm text-emergency-red">
                             {{ form.non_field_errors.0 }}
@@ -59,12 +87,23 @@
                     <div class="rounded-3xl border border-border-subtle bg-bg-navy-hover p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div>
                             <p class="text-sm text-text-muted">{{ slot.get_display_window }}</p>
+                            <p class="text-sm text-text-secondary mt-1">Capacity: {{ slot.capacity }} | Remaining: {{ slot.remaining_capacity }}</p>
+                            {% if slot.discussion_topic %}
+                            <p class="text-sm text-text-secondary mt-1">Topic: {{ slot.discussion_topic }}</p>
+                            {% endif %}
+                            {% if slot.meeting_link %}
+                            <p class="text-sm mt-1"><a href="{{ slot.meeting_link }}" target="_blank" class="text-accent-blue hover:underline">Join meeting</a></p>
+                            {% endif %}
+                            <p class="text-sm text-text-secondary mt-1">Days: {{ slot.days_of_week_display }}</p>
                             <p class="text-sm text-text-secondary mt-1">Created {{ slot.created_at|date:'M d, Y' }}</p>
                         </div>
-                        <form method="post" action="{% url 'expert_availability_delete' slot.pk %}" class="flex items-center gap-3">
-                            {% csrf_token %}
-                            <button type="submit" class="px-4 py-2 rounded-full bg-emergency-red text-white text-sm hover:bg-red-600 transition-all">Remove</button>
-                        </form>
+                        <div class="flex items-center gap-3">
+                            <a href="{% url 'expert_availability_edit' slot.pk %}" class="px-4 py-2 rounded-full bg-bg-surface border border-border-subtle text-sm text-text-primary hover:border-accent-blue transition-all">Edit</a>
+                            <form method="post" action="{% url 'expert_availability_delete' slot.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="px-4 py-2 rounded-full bg-emergency-red text-white text-sm hover:bg-red-600 transition-all">Remove</button>
+                            </form>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>

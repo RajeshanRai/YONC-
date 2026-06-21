@@ -148,9 +148,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.querySelectorAll('.delete-contact').forEach(function(btn) {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', async function() {
             const id = this.dataset.id;
-            if (!confirm('Are you sure you want to delete this message? This action cannot be undone.')) return;
+            const confirmed = await window.appConfirmAsync('Are you sure you want to delete this message? This action cannot be undone.', {
+                title: 'Delete contact message',
+                confirmText: 'Delete',
+                tone: 'warning',
+            });
+            if (!confirmed) return;
             fetch(`/dashboard/api/contacts/${id}/delete/`, {method: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')}})
             .then(res => res.json()).then(data => location.reload());
         });

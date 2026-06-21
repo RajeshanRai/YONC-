@@ -16,6 +16,7 @@ from events.models import Event
 from messaging.models import Message, Conversation
 from services.models import ServiceCategory
 from contact.models import ContactMessage
+from professional_chat.models import ChatGroup, ChatMessage
 
 
 def is_admin(user):
@@ -178,19 +179,72 @@ def manage_messages(request):
 
     # Stats
     total_messages = Message.objects.count()
+    total_group_messages = ChatMessage.objects.count()
     messages_today = Message.objects.filter(timestamp__date=timezone.now().date()).count()
     unread_messages = Message.objects.filter(is_read=False).count()
+
+    groups = ChatGroup.objects.all().order_by('name')
+    group_rows = []
+    for group in groups:
+        group_rows.append({
+            'group': group,
+            'message_count': group.messages.count(),
+            'members_count': group.members.count(),
+            'last_message': group.messages.order_by('-created_at').first(),
+        })
     
     context = {
         'title': 'Messages Overview',
         'conversations': conversation_rows,
         'stats': {
-            'total': total_messages,
+            'total': total_messages + total_group_messages,
+            'direct_total': total_messages,
+            'group_total': total_group_messages,
             'today': messages_today,
             'unread': unread_messages,
         },
+        'group_rows': group_rows,
     }
     return render(request, 'dashboard/manage_messages.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def delete_conversation_messages(request, conversation_id):
+    """Delete all direct messages in a specific conversation."""
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+    Message.objects.filter(
+        (Q(sender=conversation.participant1) & Q(receiver=conversation.participant2))
+        | (Q(sender=conversation.participant2) & Q(receiver=conversation.participant1))
+    ).delete()
+    conversation.last_message = None
+    conversation.save(update_fields=['last_message', 'updated_at'])
+    messages.success(request, 'All messages in the selected conversation were deleted.')
+    return redirect('manage_messages')
+
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def delete_group_messages(request, group_id):
+    """Delete all messages in a specific group."""
+    group = get_object_or_404(ChatGroup, id=group_id)
+    group.messages.all().delete()
+    messages.success(request, f'All messages in group "{group.name}" were deleted.')
+    return redirect('manage_messages')
+
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def delete_group(request, group_id):
+    """Delete an entire group and related messages/members."""
+    group = get_object_or_404(ChatGroup, id=group_id)
+    group_name = group.name
+    group.delete()
+    messages.success(request, f'Group "{group_name}" was deleted successfully.')
+    return redirect('manage_messages')
 
 
 @login_required

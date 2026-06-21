@@ -5,7 +5,7 @@ from .models import TimeSlot, Appointment
 
 @admin.register(TimeSlot)
 class TimeSlotAdmin(admin.ModelAdmin):
-    list_display = ('expert', 'start_time', 'end_time', 'is_booked')
+    list_display = ('expert', 'start_time', 'end_time', 'capacity', 'is_booked')
     list_filter = ('is_booked', 'expert__category', 'expert__province')
     search_fields = ('expert__user__username', 'expert__user__first_name', 'expert__user__last_name')
     date_hierarchy = 'start_time'

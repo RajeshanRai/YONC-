@@ -2,69 +2,283 @@
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .events-page {
+        min-height: calc(100vh - 64px);
+        background: linear-gradient(155deg, #f8fafc 0%, #eef2ff 55%, #e2e8f0 100%);
+        padding: 1.15rem;
+    }
+
+    .events-wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+    }
+
+    .events-head {
+        margin-bottom: 0.9rem;
+    }
+
+    .events-kicker {
+        margin: 0;
+        font-size: 0.73rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+
+    .events-title {
+        margin: 0.35rem 0 0;
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(315px, 1fr));
+        gap: 0.9rem;
+    }
+
+    .event-card {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        border: 1px solid #cbd5e1;
+        border-radius: 1rem;
+        background: #ffffff;
+        overflow: hidden;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .event-card:hover {
+        transform: translateY(-2px);
+        border-color: #93c5fd;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+    }
+
+    .event-media {
+        position: relative;
+        height: 190px;
+        background: #e2e8f0;
+    }
+
+    .event-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .event-media-fallback {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+    }
+
+    .event-tag {
+        position: absolute;
+        top: 0.65rem;
+        left: 0.65rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border-radius: 999px;
+        padding: 0.2rem 0.55rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        border: 1px solid;
+        background: rgba(255, 255, 255, 0.92);
+    }
+
+    .event-tag.upcoming {
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+
+    .event-tag.past {
+        color: #475569;
+        border-color: #cbd5e1;
+    }
+
+    .event-price {
+        position: absolute;
+        top: 0.65rem;
+        right: 0.65rem;
+        border-radius: 999px;
+        padding: 0.2rem 0.58rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #1e3a8a;
+        background: rgba(219, 234, 254, 0.94);
+        border: 1px solid #bfdbfe;
+    }
+
+    .event-body {
+        padding: 0.88rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+        flex: 1;
+    }
+
+    .event-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1.02rem;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .event-desc {
+        margin: 0;
+        color: #475569;
+        font-size: 0.84rem;
+        line-height: 1.6;
+    }
+
+    .event-meta {
+        display: grid;
+        gap: 0.35rem;
+    }
+
+    .event-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: #334155;
+        font-size: 0.8rem;
+    }
+
+    .event-meta-item i {
+        width: 16px;
+        color: #2563eb;
+        text-align: center;
+    }
+
+    .event-foot {
+        margin-top: auto;
+        padding-top: 0.65rem;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .event-capacity {
+        color: #475569;
+        font-size: 0.78rem;
+        font-weight: 600;
+    }
+
+    .event-cta {
+        color: #1d4ed8;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .events-empty {
+        border: 1px solid #cbd5e1;
+        border-radius: 1rem;
+        background: #ffffff;
+        padding: 1.2rem;
+        text-align: center;
+        color: #475569;
+    }
+
+    @media (max-width: 640px) {
+        .events-page {
+            padding: 0.8rem;
+        }
+
+        .events-title {
+            font-size: 1.45rem;
+        }
+
+        .event-media {
+            height: 172px;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="py-10 px-4">
-    <div class="max-w-6xl mx-auto space-y-6">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-                <p class="text-sm uppercase tracking-[0.3em] text-text-muted">Events</p>
-                <h1 class="text-3xl font-bold text-text-primary">Upcoming Community Events</h1>
-            </div>
+<section class="events-page">
+    <div class="events-wrap">
+        <div class="events-head">
+            <p class="events-kicker">Events</p>
+            <h1 class="events-title">Community Events</h1>
         </div>
 
         {% if events %}
-        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div class="events-grid">
             {% for event in events %}
-            <a href="{% url 'events:event_detail' event.pk %}" class="block rounded-3xl border border-border-subtle bg-bg-surface overflow-hidden hover:border-accent-blue/50 hover:shadow-lg transition-all">
-                <div class="relative h-48 bg-bg-navy-hover overflow-hidden">
+            <a href="{% url 'events:event_detail' event.pk %}" class="event-card">
+                <div class="event-media">
                     {% if event.image %}
-                    <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-full h-full object-cover">
+                    <img src="{{ event.image.url }}" alt="{{ event.title }}">
                     {% else %}
-                    <div class="w-full h-full flex items-center justify-center">
+                    <div class="event-media-fallback">
                         <i class="fa-solid fa-calendar-days text-4xl text-text-muted"></i>
                     </div>
                     {% endif %}
+
+                    <span class="event-tag {% if event.start_time >= now %}upcoming{% else %}past{% endif %}">
+                        <i class="fa-solid fa-circle text-[8px]"></i>
+                        {% if event.start_time >= now %}Upcoming{% else %}Past Event{% endif %}
+                    </span>
+
                     {% if event.is_ticketed %}
-                    <div class="absolute top-3 right-3 px-3 py-1 bg-accent-blue/90 text-white text-xs font-semibold rounded-full">
+                    <div class="event-price">
                         {% if event.price > 0 %}${{ event.price }}{% else %}Free{% endif %}
                     </div>
                     {% endif %}
                 </div>
-                <div class="p-5 space-y-3">
+
+                <div class="event-body">
                     <div>
-                        <h3 class="text-lg font-semibold text-text-primary line-clamp-2">{{ event.title }}</h3>
-                        <p class="text-sm text-text-secondary mt-1 line-clamp-2">{{ event.description|truncatechars:100 }}</p>
+                        <h3 class="event-title">{{ event.title }}</h3>
+                        <p class="event-desc">{{ event.description|truncatechars:100 }}</p>
                     </div>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex items-center gap-2 text-text-secondary">
-                            <i class="fa-solid fa-calendar-check text-accent-blue w-4"></i>
+
+                    <div class="event-meta">
+                        <div class="event-meta-item">
+                            <i class="fa-solid fa-calendar-check"></i>
                             <span>{{ event.start_time|date:"M d, Y" }}</span>
                         </div>
-                        <div class="flex items-center gap-2 text-text-secondary">
-                            <i class="fa-solid fa-clock text-accent-blue w-4"></i>
-                            <span>{{ event.start_time|date:"H:i" }}</span>
+
+                        <div class="event-meta-item">
+                            <i class="fa-solid fa-clock"></i>
+                            <span>{{ event.start_time|date:"g:i A" }}</span>
                         </div>
-                        <div class="flex items-center gap-2 text-text-secondary">
-                            <i class="fa-solid fa-map-pin text-accent-blue w-4"></i>
-                            <span>{{ event.location|default:'Online' }}</span>
+
+                        <div class="event-meta-item">
+                            <i class="fa-solid fa-map-pin"></i>
+                            <span>{% if event.is_online %}Online{% else %}{{ event.location|default:'Venue TBA' }}{% endif %}</span>
                         </div>
                     </div>
-                    {% if event.is_full %}
-                    <div class="pt-2 border-t border-border-subtle">
-                        <span class="inline-flex items-center gap-2 px-3 py-2 bg-text-disabled/10 text-text-muted text-xs font-semibold rounded-full">Fully Booked</span>
+
+                    <div class="event-foot">
+                        {% if event.is_full %}
+                        <span class="event-capacity">Fully Booked</span>
+                        {% elif event.is_ticketed %}
+                        <span class="event-capacity">{{ event.seats_remaining }} seats remaining</span>
+                        {% else %}
+                        <span class="event-capacity">Open event</span>
+                        {% endif %}
+                        <span class="event-cta">View Details <i class="fa-solid fa-arrow-right"></i></span>
                     </div>
-                    {% elif event.is_ticketed %}
-                    <div class="pt-2 border-t border-border-subtle">
-                        <p class="text-xs text-text-secondary">{{ event.seats_remaining }} seats remaining</p>
-                    </div>
-                    {% endif %}
                 </div>
             </a>
             {% endfor %}
         </div>
         {% else %}
-        <div class="rounded-3xl border border-border-subtle bg-bg-surface p-8 text-center">
-            <p class="text-text-secondary">No upcoming events have been added yet. Check back soon for webinars and workshops.</p>
+        <div class="events-empty">
+            <p>No upcoming events have been added yet. Check back soon for webinars and workshops.</p>
         </div>
         {% endif %}
     </div>

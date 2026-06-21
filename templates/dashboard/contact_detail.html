@@ -91,8 +91,13 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(() => location.reload());
     });
 
-    document.getElementById('delete-contact').addEventListener('click', function() {
-        if (!confirm('Delete this message permanently?')) return;
+    document.getElementById('delete-contact').addEventListener('click', async function() {
+        const confirmed = await window.appConfirmAsync('Delete this message permanently?', {
+            title: 'Delete contact message',
+            confirmText: 'Delete',
+            tone: 'warning',
+        });
+        if (!confirmed) return;
         fetch(`/dashboard/api/contacts/${contactId}/delete/`, {method: 'POST', headers: {'X-CSRFToken': csrftoken}})
             .then(res => res.json())
             .then(() => window.location.href = '{% url "manage_contacts" %}');

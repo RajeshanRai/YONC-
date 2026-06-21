@@ -24,8 +24,8 @@
                 </div>
                 <h3 class="text-lg font-semibold text-text-primary mb-2">Email</h3>
                 <p class="text-text-secondary text-sm mb-3">Send us a message and we'll respond as soon as possible.</p>
-                <a href="mailto:contact@youthofnepalincanada.com" class="text-accent-blue hover:text-accent-cyan font-medium text-sm transition-colors">
-                    contact@youthofnepalincanada.com
+                <a href="mailto:rajeshanrai.official@gmail.com" class="text-accent-blue hover:text-accent-cyan font-medium text-sm transition-colors">
+                    rajeshanrai.official@gmail.com
                 </a>
             </div>
 
@@ -35,9 +35,9 @@
                     <i class="fa-solid fa-phone text-accent-cyan text-xl"></i>
                 </div>
                 <h3 class="text-lg font-semibold text-text-primary mb-2">Phone</h3>
-                <p class="text-text-secondary text-sm mb-3">Call us during business hours (Mon-Fri, 9 AM - 6 PM EST).</p>
-                <a href="tel:+14165551234" class="text-accent-cyan hover:text-accent-blue font-medium text-sm transition-colors">
-                    +1 (416) 555-1234
+                <p class="text-text-secondary text-sm mb-3">Call us anytime you need us.</p>
+                <a href="tel:+17788851041" class="text-accent-cyan hover:text-accent-blue font-medium text-sm transition-colors">
+                    +1 (778)885-1041
                 </a>
             </div>
 
@@ -61,12 +61,14 @@
 
             {% if messages %}
                 {% for message in messages %}
+                    {% if 'contact_success' in message.tags %}
                     <div class="mb-6 p-4 rounded-lg {% if message.tags %}bg-success-green/10 border border-success-green/30 text-success-green{% else %}bg-accent-blue/10 border border-accent-blue/30 text-accent-blue{% endif %}">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-check-circle"></i>
                             <span>{{ message }}</span>
                         </div>
                     </div>
+                    {% endif %}
                 {% endfor %}
             {% endif %}
 

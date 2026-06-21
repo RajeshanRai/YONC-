@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
+import os
 
 
 class Message(models.Model):
@@ -16,7 +17,8 @@ class Message(models.Model):
         on_delete=models.CASCADE, 
         related_name='received_messages'
     )
-    content = models.TextField(max_length=2000)
+    content = models.TextField(max_length=2000, blank=True, default='')
+    attachment = models.FileField(upload_to='chat_attachments/direct/', blank=True, null=True)
     is_read = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     
@@ -37,8 +39,9 @@ class Message(models.Model):
     
     def get_timestamp_display(self):
         from django.utils import timezone
-        now = timezone.now()
-        diff = now - self.timestamp
+        now = timezone.localtime(timezone.now())
+        local_timestamp = timezone.localtime(self.timestamp)
+        diff = now - local_timestamp
         
         if diff.days == 0:
             if diff.seconds < 60:
@@ -54,7 +57,15 @@ class Message(models.Model):
         elif diff.days < 7:
             return f'{diff.days}d ago'
         else:
-            return self.timestamp.strftime('%b %d')
+            return local_timestamp.strftime('%b %d')
+
+    def has_attachment(self):
+        return bool(self.attachment)
+
+    def get_attachment_name(self):
+        if not self.attachment:
+            return ''
+        return os.path.basename(self.attachment.name)
 
 
 class Conversation(models.Model):

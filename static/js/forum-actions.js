@@ -87,7 +87,7 @@ document.addEventListener('click', function(e){
                 btn.textContent = 'Link copied';
                 setTimeout(function(){ btn.textContent = original; }, 1400);
             }).catch(function(){
-                window.prompt('Copy this link', loc);
+                window.appPromptAsync('Copy this link', loc, { title: 'Share link', confirmText: 'Close', cancelText: 'Cancel', tone: 'info' });
             });
         }
     }

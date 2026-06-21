@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %} | Youth of Nepal in Canada</title>
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon-nepal-community.svg' %}">
     
     <!-- Google Fonts - Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,7 +22,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
     
     <!-- Custom CSS -->
-    {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
     <!-- Tailwind Config -->
@@ -57,9 +58,6 @@
     <!-- Navigation -->
     {% include 'partials/navbar.html' %}
     
-    <!-- Message Popups -->
-    <div id="message-container" class="fixed top-4 right-4 z-50 flex flex-col gap-3 items-end pointer-events-none"></div>
-    
     <!-- Main Content -->
     <main class="flex-grow">
         {% block content %}{% endblock %}
@@ -75,15 +73,6 @@
     
     <!-- JavaScript -->
     <script src="{% static 'js/main.js' %}"></script>
-    {% if messages %}
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        {% for message in messages %}
-        appAlert('{{ message|escapejs }}', '{{ message.tags|default:'info' }}');
-        {% endfor %}
-    });
-    </script>
-    {% endif %}
     {% block extra_js %}{% endblock %}
 </body>
 </html>

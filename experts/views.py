@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q, Avg
+from django.db.models import Q, Avg, Count, F
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -116,6 +116,7 @@ def expert_list_by_province(request, province_code):
     return render(request, 'experts/expert_list.html', context)
 
 
+@login_required
 def expert_detail(request, pk):
     """Display detailed expert profile."""
     expert = get_object_or_404(
@@ -125,10 +126,16 @@ def expert_detail(request, pk):
     )
     
     experiences = expert.experiences.all()
-    available_slots_qs = expert.time_slots.filter(is_booked=False, start_time__gte=timezone.now()).order_by('start_time')
-    available_slots = available_slots_qs[:4]
+    future_slots_qs = expert.time_slots.annotate(
+        active_bookings=Count('appointment', filter=~Q(appointment__status='cancelled'))
+    ).filter(
+        start_time__gte=timezone.now(),
+    ).order_by('start_time')
+    available_slots_qs = future_slots_qs.filter(capacity__gt=F('active_bookings'))
+    available_slots = list(available_slots_qs[:4])
     available_slots_count = available_slots_qs.count()
     next_available_slot = available_slots_qs.first()
+    future_slots = list(future_slots_qs)
     
     # Related experts
     related_experts = ExpertProfile.objects.filter(
@@ -150,6 +157,7 @@ def expert_detail(request, pk):
         'available_slots': available_slots,
         'available_slots_count': available_slots_count,
         'next_available_slot': next_available_slot,
+        'future_slots': future_slots,
         'related_experts': related_experts,
         'has_conversation': has_conversation,
         'title': f'{expert.user.get_full_name_display()} - {expert.category.name}',
@@ -271,6 +279,7 @@ def expert_availability(request):
         if form.is_valid():
             slot = form.save(commit=False)
             slot.expert = expert
+            slot.expert_timezone = timezone.get_current_timezone_name()
             slot.save()
             messages.success(request, 'Availability has been added to your schedule.')
             return redirect('expert_availability')
@@ -286,6 +295,37 @@ def expert_availability(request):
         'title': 'Manage Availability',
     }
     return render(request, 'experts/expert_availability.html', context)
+
+
+@login_required
+def expert_availability_edit(request, pk):
+    if not request.user.is_expert():
+        messages.error(request, 'Access denied. Only experts can manage availability.')
+        return redirect('home')
+
+    expert = get_object_or_404(ExpertProfile, user=request.user)
+    slot = get_object_or_404(TimeSlot, pk=pk, expert=expert)
+
+    if request.method == 'POST':
+        form = TimeSlotForm(request.POST, instance=slot)
+        if form.is_valid():
+            updated_slot = form.save(commit=False)
+            updated_slot.expert_timezone = timezone.get_current_timezone_name()
+            updated_slot.save()
+            messages.success(request, 'Time slot has been updated.')
+            return redirect('expert_availability')
+        else:
+            messages.error(request, 'Please correct the form errors below.')
+    else:
+        form = TimeSlotForm(instance=slot)
+
+    context = {
+        'expert': expert,
+        'form': form,
+        'slot': slot,
+        'title': 'Edit Availability Slot',
+    }
+    return render(request, 'experts/expert_availability_edit.html', context)
 
 
 @login_required

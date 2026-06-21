@@ -16,6 +16,15 @@
         
         <!-- Login Form -->
         <div class="bg-bg-navy border border-border-subtle rounded-xl p-6 md:p-8">
+            {% if login_error %}
+            <div class="mb-5 rounded-xl border border-emergency-red/25 bg-emergency-red/5 px-4 py-3 text-sm text-emergency-red">
+                <div class="flex items-start gap-2">
+                    <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+                    <span>{{ login_error }}</span>
+                </div>
+            </div>
+            {% endif %}
+
             <form method="post" class="space-y-5">
                 {% csrf_token %}
                 
@@ -54,9 +63,6 @@
                     Sign In
                 </button>
             </form>
-            <div class="mt-4 text-center text-sm text-text-secondary">
-                <a href="{% url 'resend_verification' %}" class="text-accent-blue hover:text-accent-cyan transition-colors">Resend verification code</a>
-            </div>
             
             <!-- Divider -->
             <div class="flex items-center my-6">
@@ -67,18 +73,11 @@
             
             <!-- Register Link -->
             <p class="text-center text-sm text-text-secondary">
-                Don't have an account? 
-                <a href="{% url 'register' %}" class="text-accent-blue hover:text-accent-cyan font-medium transition-colors">Join YONC</a>
+                Do you want to signup?
+                <a href="{% url 'register' %}" class="text-accent-blue hover:text-accent-cyan font-medium transition-colors">Register</a>
             </p>
         </div>
         
-        <!-- Back to Home -->
-        <div class="text-center mt-6">
-            <a href="{% url 'home' %}" class="text-sm text-text-muted hover:text-text-secondary transition-colors inline-flex items-center gap-1">
-                <i class="fa-solid fa-arrow-left text-xs"></i>
-                Back to Home
-            </a>
-        </div>
     </div>
 </section>
 

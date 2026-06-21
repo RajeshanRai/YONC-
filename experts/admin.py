@@ -40,12 +40,26 @@ class ExpertApplicationAdmin(admin.ModelAdmin):
     date_hierarchy = 'submitted_at'
     
     actions = ['approve_applications', 'reject_applications']
+    readonly_fields = ('submitted_at', 'reviewed_at', 'reviewed_by')
+    
+    def save_model(self, request, obj, form, change):
+        if change and obj.pk:
+            original = ExpertApplication.objects.get(pk=obj.pk)
+            if original.status != obj.status:
+                if obj.status == 'approved':
+                    obj.approve(reviewer=request.user)
+                    return
+                if obj.status == 'rejected':
+                    obj.reject(reviewer=request.user)
+                    return
+        super().save_model(request, obj, form, change)
     
     def approve_applications(self, request, queryset):
         for app in queryset:
-            app.approve()
+            app.approve(reviewer=request.user)
     approve_applications.short_description = 'Approve selected applications'
     
     def reject_applications(self, request, queryset):
-        queryset.update(status='rejected')
+        for app in queryset:
+            app.reject(reviewer=request.user)
     reject_applications.short_description = 'Reject selected applications'

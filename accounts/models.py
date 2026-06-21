@@ -37,6 +37,10 @@ class User(AbstractUser):
     city = models.CharField(max_length=100, blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True, default='profile_pics/default.png')
     bio = models.TextField(max_length=500, blank=True, null=True)
+    chat_violation_count = models.PositiveIntegerField(default=0)
+    is_blocked_for_chat_violations = models.BooleanField(default=False)
+    chat_blocked_at = models.DateTimeField(blank=True, null=True)
+    VERIFIED_BADGE = "✓"
     
     class Meta:
         ordering = ['-date_joined']
@@ -52,14 +56,23 @@ class User(AbstractUser):
     
     def is_end_user(self):
         return self.role == 'user'
+
+    def is_verified_user(self):
+        return self.is_admin() or self.is_expert()
     
     def get_full_name_display(self):
-        return self.get_full_name() or self.username
+        base_name = self.get_full_name() or self.username
+        if self.is_verified_user():
+            return f"{base_name} {self.VERIFIED_BADGE}"
+        return base_name
     
     def get_profile_picture_url(self):
         if self.profile_picture and hasattr(self.profile_picture, 'url'):
             return self.profile_picture.url
         return '/static/images/default-avatar.png'
+
+    def is_blocked_for_moderation(self):
+        return self.is_blocked_for_chat_violations or not self.is_active
 
 
 class UserProfile(models.Model):

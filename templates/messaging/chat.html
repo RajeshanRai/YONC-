@@ -13,6 +13,120 @@
         to { opacity: 1; transform: translateY(0); }
     }
     .message-anim { animation: messageSlide 0.3s ease-out; }
+
+    .chat-settings-panel {
+        position: absolute;
+        top: 58px;
+        right: 12px;
+        width: 280px;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.75rem;
+        box-shadow: 0 14px 36px rgba(15, 23, 42, 0.14);
+        padding: 0.8rem;
+        display: none;
+        z-index: 30;
+    }
+
+    .chat-settings-panel.show {
+        display: block;
+    }
+
+    .chat-settings-title {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #334155;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.6rem;
+    }
+
+    .chat-setting-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.82rem;
+        color: #334155;
+        margin-bottom: 0.5rem;
+    }
+
+    .chat-setting-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .chat-file-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .chat-file-status {
+        font-size: 0.72rem;
+        color: #64748b;
+        max-width: 180px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .attachment-link {
+        margin-top: 0.45rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.73rem;
+        padding: 0.25rem 0.55rem;
+        border-radius: 999px;
+        text-decoration: none;
+    }
+
+    .attachment-link.mine {
+        background: rgba(191, 219, 254, 0.3);
+        color: #dbeafe;
+        border: 1px solid rgba(191, 219, 254, 0.45);
+    }
+
+    .attachment-link.theirs {
+        background: #e2e8f0;
+        color: #1e3a8a;
+        border: 1px solid #cbd5e1;
+    }
+
+    .chat-sent-bubble {
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    .chat-received-bubble {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .chat-message-bubble {
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+        .message-actions {
+            display: inline-flex;
+            gap: 0.4rem;
+            margin-left: 0.5rem;
+        }
+
+        .message-action-btn {
+            border: none;
+            background: transparent;
+            color: #bfdbfe;
+            font-size: 0.7rem;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .message-action-btn:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
 </style>
 {% endblock %}
 
@@ -21,7 +135,7 @@
     <div class="max-w-3xl mx-auto h-full flex flex-col bg-bg-navy border border-border-subtle rounded-xl overflow-hidden">
         
         <!-- Chat Header -->
-        <div class="px-4 py-3 bg-bg-navy-hover border-b border-border-subtle flex items-center gap-3">
+        <div class="px-4 py-3 bg-bg-navy-hover border-b border-border-subtle flex items-center gap-3 relative">
             <a href="{% url 'inbox' %}" class="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-surface transition-all md:hidden">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
@@ -56,20 +170,50 @@
                 <a href="{% url 'public_profile' other_user.id %}" class="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-surface transition-all" title="View Profile">
                     <i class="fa-solid fa-user text-sm"></i>
                 </a>
+                <button type="button" id="chatSettingsToggle" class="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-surface transition-all" title="Chat Settings">
+                    <i class="fa-solid fa-gear text-sm"></i>
+                </button>
+            </div>
+
+            <div id="chatSettingsPanel" class="chat-settings-panel">
+                <div class="chat-settings-title">Chat Settings</div>
+                <label class="chat-setting-item">
+                    <span>Mute notifications</span>
+                    <input id="muteNotificationsToggle" type="checkbox">
+                </label>
+                <label class="chat-setting-item">
+                    <span>Enter to send</span>
+                    <input id="enterToSendToggle" type="checkbox" checked>
+                </label>
+                <label class="chat-setting-item">
+                    <span>Auto-scroll new messages</span>
+                    <input id="autoScrollToggle" type="checkbox" checked>
+                </label>
+                <p class="text-[11px] text-text-muted mt-2">Allowed files: PDF, Word, Excel only (max 10MB).</p>
             </div>
         </div>
         
         <!-- Messages Area -->
         <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 chat-messages">
-            {% if messages %}
-            {% for message in messages %}
-            <div class="flex {% if message.sender == request.user %}justify-end{% else %}justify-start{% endif %} message-anim" data-message-id="{{ message.id }}">
-                <div class="max-w-[75%] {% if message.sender == request.user %}bg-accent-blue text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl{% else %}bg-bg-surface text-text-primary rounded-tl-xl rounded-tr-xl rounded-br-xl{% endif %} px-4 py-2.5 shadow-sm">
-                    <p class="text-sm leading-relaxed">{{ message.content }}</p>
-                    <p class="text-[10px] mt-1 {% if message.sender == request.user %}text-blue-200{% else %}text-text-muted{% endif %}">
+            {% if chat_messages %}
+            {% for message in chat_messages %}
+            <div class="w-full flex {% if message.sender == request.user %}justify-end{% else %}justify-start{% endif %} message-anim" data-message-id="{{ message.id }}">
+                <div class="max-w-[75%] {% if message.sender == request.user %}bg-accent-blue text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl chat-sent-bubble{% else %}bg-bg-surface text-text-primary rounded-tl-xl rounded-tr-xl rounded-br-xl chat-received-bubble{% endif %} chat-message-bubble px-4 py-2.5">
+                    <p class="text-sm leading-relaxed message-content-text">{{ message.content }}</p>
+                    {% if message.attachment %}
+                    <a class="attachment-link {% if message.sender == request.user %}mine{% else %}theirs{% endif %}" href="{{ message.attachment.url }}" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-solid fa-file-lines"></i>
+                        <span>{{ message.get_attachment_name }}</span>
+                    </a>
+                    {% endif %}
+                    <p class="text-[10px] mt-1 message-meta {% if message.sender == request.user %}text-blue-200{% else %}text-text-muted{% endif %}">
                         {{ message.get_timestamp_display }}
                         {% if message.sender == request.user %}
                         <i class="fa-solid fa-check {% if message.is_read %}text-success-green{% endif %} ml-1"></i>
+                        <span class="message-actions">
+                            <button type="button" class="message-action-btn" onclick="editOwnDirectMessage({{ message.id }})">Edit</button>
+                            <button type="button" class="message-action-btn" onclick="deleteOwnDirectMessage({{ message.id }})">Delete</button>
+                        </span>
                         {% endif %}
                     </p>
                 </div>
@@ -92,14 +236,22 @@
             <form id="chat-form" class="flex gap-2" onsubmit="return handleChatSubmit(event)">
                 {% csrf_token %}
                 <input type="hidden" id="receiver-id" value="{{ other_user.id }}">
+                <input type="file" id="chat-file-input" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx">
                 <input type="text" id="message-input" 
                        class="flex-1 px-4 py-2.5 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder-text-muted text-sm focus:outline-none focus:border-accent-blue transition-colors"
                        placeholder="Type a message..." autocomplete="off" autofocus>
+                <button type="button" id="attach-file-btn" class="px-3 py-2.5 bg-bg-surface border border-border-subtle text-text-secondary hover:text-text-primary rounded-lg transition-all" title="Attach file">
+                    <i class="fa-solid fa-paperclip text-sm"></i>
+                </button>
                 <button type="submit" class="px-4 py-2.5 bg-accent-blue hover:bg-blue-600 text-white rounded-lg transition-all flex items-center gap-2">
                     <i class="fa-solid fa-paper-plane text-sm"></i>
                     <span class="hidden sm:inline text-sm">Send</span>
                 </button>
             </form>
+            <div class="chat-file-row mt-2">
+                <span id="chat-file-status" class="chat-file-status">No file selected</span>
+                <button type="button" id="chat-file-clear" class="text-[11px] text-text-muted hover:text-text-primary">Clear</button>
+            </div>
         </div>
     </div>
 </section>
@@ -107,6 +259,20 @@
 <script>
 // Scroll to bottom on load
 const chatContainer = document.getElementById('chat-messages');
+const fileInput = document.getElementById('chat-file-input');
+const fileStatus = document.getElementById('chat-file-status');
+const fileAttachBtn = document.getElementById('attach-file-btn');
+const fileClearBtn = document.getElementById('chat-file-clear');
+const settingsPanel = document.getElementById('chatSettingsPanel');
+const settingsToggle = document.getElementById('chatSettingsToggle');
+const muteToggle = document.getElementById('muteNotificationsToggle');
+const enterToSendToggle = document.getElementById('enterToSendToggle');
+const autoScrollToggle = document.getElementById('autoScrollToggle');
+const allowedFileExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx'];
+const editMessageUrlTemplate = '/messages/message/__ID__/edit/';
+const deleteMessageUrlTemplate = '/messages/message/__ID__/delete/';
+let enterToSend = true;
+let autoScroll = true;
 if (chatContainer) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
@@ -117,8 +283,17 @@ function handleChatSubmit(event) {
     const input = document.getElementById('message-input');
     const receiverId = document.getElementById('receiver-id').value;
     const content = input.value.trim();
+    const selectedFile = fileInput.files[0] || null;
     
-    if (!content) return false;
+    if (!content && !selectedFile) {
+        appAlert('Type a message or attach a file.', 'warning');
+        return false;
+    }
+
+    if (selectedFile && !isAllowedChatFile(selectedFile)) {
+        appAlert('Only PDF, Word, and Excel files are allowed.', 'warning');
+        return false;
+    }
     
     // Add message to UI immediately
     const messagesContainer = document.getElementById('chat-messages');
@@ -126,20 +301,33 @@ function handleChatSubmit(event) {
     if (emptyState) emptyState.remove();
     
     const messageDiv = document.createElement('div');
-    messageDiv.className = 'flex justify-end message-anim';
+    messageDiv.className = 'w-full flex justify-end message-anim';
+    const localAttachmentHtml = selectedFile ? `
+        <a class="attachment-link mine" href="#" onclick="return false;">
+            <i class="fa-solid fa-file-lines"></i>
+            <span>${escapeHtml(selectedFile.name)}</span>
+        </a>
+    ` : '';
+
     messageDiv.innerHTML = `
-        <div class="max-w-[75%] bg-accent-blue text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl px-4 py-2.5 shadow-sm">
-            <p class="text-sm leading-relaxed">${escapeHtml(content)}</p>
-            <p class="text-[10px] mt-1 text-blue-200">Just now <i class="fa-solid fa-check ml-1"></i></p>
+        <div class="max-w-[75%] bg-accent-blue text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl chat-sent-bubble chat-message-bubble px-4 py-2.5">
+            ${content ? `<p class="text-sm leading-relaxed">${escapeHtml(content)}</p>` : ''}
+            ${localAttachmentHtml}
+            <p class="text-[10px] mt-1 text-blue-200 message-meta">Just now <i class="fa-solid fa-check ml-1"></i></p>
         </div>
     `;
     messagesContainer.appendChild(messageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    if (autoScroll) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
     
     // Send via AJAX
     const formData = new FormData();
     formData.append('receiver_id', receiverId);
     formData.append('content', content);
+    if (selectedFile) {
+        formData.append('attachment', selectedFile);
+    }
     formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
     
     fetch('/messages/send/', {
@@ -152,11 +340,23 @@ function handleChatSubmit(event) {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
+            messageDiv.dataset.messageId = data.message_id;
+            const timestampNode = messageDiv.querySelector('.message-meta');
+            if (timestampNode) {
+                timestampNode.innerHTML = `${data.timestamp} <i class="fa-solid fa-check ml-1"></i> <span class="message-actions"><button type="button" class="message-action-btn" onclick="editOwnDirectMessage(${data.message_id})">Edit</button><button type="button" class="message-action-btn" onclick="deleteOwnDirectMessage(${data.message_id})">Delete</button></span>`;
+            }
             input.value = '';
+            fileInput.value = '';
+            fileStatus.textContent = 'No file selected';
             input.focus();
+        } else if (data.message) {
+            appAlert(data.message, 'warning');
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        appAlert('Failed to send message.', 'danger');
+    });
     
     return false;
 }
@@ -190,24 +390,167 @@ function pollMessages() {
                 lastMessageId = Math.max(lastMessageId, msg.id);
                 
                 const messageDiv = document.createElement('div');
-                messageDiv.className = 'flex justify-start message-anim';
+                messageDiv.className = 'w-full flex justify-start message-anim';
                 messageDiv.dataset.messageId = msg.id;
                 messageDiv.innerHTML = `
-                    <div class="max-w-[75%] bg-bg-surface text-text-primary rounded-tl-xl rounded-tr-xl rounded-br-xl px-4 py-2.5 shadow-sm">
-                        <p class="text-sm leading-relaxed">${escapeHtml(msg.content)}</p>
+                    <div class="max-w-[75%] bg-bg-surface text-text-primary rounded-tl-xl rounded-tr-xl rounded-br-xl chat-received-bubble chat-message-bubble px-4 py-2.5">
+                        ${msg.content ? `<p class="text-sm leading-relaxed">${escapeHtml(msg.content)}</p>` : ''}
+                        ${msg.attachment_url ? `<a class="attachment-link theirs" href="${escapeHtml(msg.attachment_url)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-file-lines"></i><span>${escapeHtml(msg.attachment_name || 'Attachment')}</span></a>` : ''}
                         <p class="text-[10px] mt-1 text-text-muted">${msg.timestamp}</p>
                     </div>
                 `;
                 messagesContainer.appendChild(messageDiv);
             });
             
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            if (autoScroll) {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
         }
     })
     .catch(error => console.error('Error polling:', error));
 }
 
+async function editOwnDirectMessage(messageId) {
+    const wrapper = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (!wrapper) return;
+    const textNode = wrapper.querySelector('.message-content-text');
+    const current = textNode ? textNode.textContent.trim() : '';
+    const updated = await window.appPromptAsync('Edit your message', current, {
+        title: 'Edit message',
+        confirmText: 'Save',
+        cancelText: 'Cancel',
+        tone: 'info',
+    });
+    if (updated === null) return;
+    const newContent = updated.trim();
+
+    const formData = new FormData();
+    formData.append('content', newContent);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+    fetch(editMessageUrlTemplate.replace('__ID__', messageId), {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success' && textNode) {
+            textNode.textContent = data.content;
+        } else {
+            appAlert(data.message || 'Unable to edit message.', 'warning');
+        }
+    })
+    .catch(() => appAlert('Unable to edit message.', 'danger'));
+}
+
+async function deleteOwnDirectMessage(messageId) {
+    const confirmed = await window.appConfirmAsync('Delete this message?', {
+        title: 'Delete message',
+        confirmText: 'Delete',
+        tone: 'warning',
+    });
+    if (!confirmed) return;
+
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+    fetch(deleteMessageUrlTemplate.replace('__ID__', messageId), {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const wrapper = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (wrapper) wrapper.remove();
+        } else {
+            appAlert(data.message || 'Unable to delete message.', 'warning');
+        }
+    })
+    .catch(() => appAlert('Unable to delete message.', 'danger'));
+}
+
 // Poll every 3 seconds
 setInterval(pollMessages, 3000);
+
+function isAllowedChatFile(file) {
+    const extension = (file.name.split('.').pop() || '').toLowerCase();
+    return allowedFileExtensions.includes(extension);
+}
+
+function syncChatSettingsFromStorage() {
+    const keyPrefix = 'direct-chat-settings:' + document.getElementById('receiver-id').value;
+    const storedMute = localStorage.getItem(keyPrefix + ':mute');
+    const storedEnter = localStorage.getItem(keyPrefix + ':enterToSend');
+    const storedAuto = localStorage.getItem(keyPrefix + ':autoScroll');
+
+    muteToggle.checked = storedMute === '1';
+    enterToSend = storedEnter !== '0';
+    autoScroll = storedAuto !== '0';
+    enterToSendToggle.checked = enterToSend;
+    autoScrollToggle.checked = autoScroll;
+}
+
+settingsToggle.addEventListener('click', () => {
+    settingsPanel.classList.toggle('show');
+});
+
+document.addEventListener('click', (event) => {
+    if (!settingsPanel.contains(event.target) && !settingsToggle.contains(event.target)) {
+        settingsPanel.classList.remove('show');
+    }
+});
+
+muteToggle.addEventListener('change', () => {
+    const keyPrefix = 'direct-chat-settings:' + document.getElementById('receiver-id').value;
+    localStorage.setItem(keyPrefix + ':mute', muteToggle.checked ? '1' : '0');
+});
+
+enterToSendToggle.addEventListener('change', () => {
+    enterToSend = enterToSendToggle.checked;
+    const keyPrefix = 'direct-chat-settings:' + document.getElementById('receiver-id').value;
+    localStorage.setItem(keyPrefix + ':enterToSend', enterToSend ? '1' : '0');
+});
+
+autoScrollToggle.addEventListener('change', () => {
+    autoScroll = autoScrollToggle.checked;
+    const keyPrefix = 'direct-chat-settings:' + document.getElementById('receiver-id').value;
+    localStorage.setItem(keyPrefix + ':autoScroll', autoScroll ? '1' : '0');
+});
+
+fileAttachBtn.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) {
+        fileStatus.textContent = 'No file selected';
+        return;
+    }
+
+    if (!isAllowedChatFile(file)) {
+        fileInput.value = '';
+        fileStatus.textContent = 'No file selected';
+        appAlert('Only PDF, Word, and Excel files are allowed.', 'warning');
+        return;
+    }
+
+    fileStatus.textContent = file.name;
+});
+
+fileClearBtn.addEventListener('click', () => {
+    fileInput.value = '';
+    fileStatus.textContent = 'No file selected';
+});
+
+document.getElementById('message-input').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey && enterToSend) {
+        event.preventDefault();
+        document.getElementById('chat-form').requestSubmit();
+    }
+});
+
+syncChatSettingsFromStorage();
 </script>
 {% endblock %}

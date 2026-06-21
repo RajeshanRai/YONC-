@@ -321,6 +321,42 @@ table td, table th {
     border-radius: 8px;
 }
 
+.global-skeleton-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    background: #F8FAFC;
+}
+
+.global-skeleton-item {
+    position: absolute;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #E2E8F0 20%, #F1F5F9 50%, #E2E8F0 80%);
+    background-size: 220% 100%;
+    animation: shimmer 1.2s linear infinite;
+}
+
+html.skeleton-active,
+html.skeleton-active body {
+    overflow: hidden;
+}
+
+html.skeleton-active body > *:not(#global-skeleton-overlay) {
+    visibility: hidden !important;
+}
+
+html.skeleton-active #global-skeleton-overlay {
+    visibility: visible !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .global-skeleton-item,
+    .skeleton {
+        animation: none;
+    }
+}
+
 /* ===== Status Badges ===== */
 .badge {
     display: inline-flex;

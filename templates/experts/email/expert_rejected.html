@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expert Application Update</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            font-family: Inter, system-ui, sans-serif;
+            color: #0f172a;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+        }
+        .header {
+            background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+            padding: 40px 24px;
+            text-align: center;
+            color: white;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(239, 68, 68, 0.16);
+            color: #0f172a;
+            font-weight: 700;
+            margin-top: 18px;
+        }
+        .content {
+            padding: 32px 28px 36px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0 0 12px;
+            color: #0f172a;
+        }
+        .subtitle {
+            font-size: 16px;
+            line-height: 1.75;
+            color: #475569;
+            margin: 0 0 24px;
+        }
+        .footer {
+            padding: 24px 28px 32px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Application Update</h1>
+            <div class="badge">
+                <span>✕</span>
+                Application Rejected
+            </div>
+        </div>
+        <div class="content">
+            <p class="title">Hello, {{ user.get_full_name_display }}.</p>
+            <p class="subtitle">Thank you for applying as an expert in <strong>{{ category.name }}</strong> on Youth of Nepal in Canada.</p>
+            <p class="subtitle">After reviewing your application, we were unable to approve it at this time.</p>
+            <p class="subtitle">You can update your profile and reapply when your experience or qualifications change.</p>
+        </div>
+        <div class="footer">
+            <p>We appreciate your interest in joining our expert community.</p>
+        </div>
+    </div>
+</body>
+</html>

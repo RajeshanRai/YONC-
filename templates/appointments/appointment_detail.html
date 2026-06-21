@@ -25,6 +25,10 @@
                 <div class="rounded-3xl border border-border-subtle p-6 bg-bg-navy-hover">
                     <h2 class="text-sm font-semibold text-text-primary mb-3">Schedule</h2>
                     <p class="text-sm text-text-secondary">{{ appointment.timeslot.get_display_window }}</p>
+                    <p class="text-xs text-text-muted mt-2">Your timezone: {{ current_timezone }}</p>
+                    {% if appointment.timeslot.expert_timezone %}
+                    <p class="text-xs text-text-muted mt-1">Expert timezone: {{ appointment.timeslot.expert_timezone }}</p>
+                    {% endif %}
                     <p class="text-sm text-text-muted mt-2">Booked on {{ appointment.created_at|date:'M d, Y \a\t h:i A' }}</p>
                 </div>
             </div>

@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .create-chat-page {
+        min-height: calc(100vh - 64px);
+        background:
+            radial-gradient(circle at 14% 12%, rgba(65, 105, 225, 0.14), transparent 33%),
+            radial-gradient(circle at 88% 90%, rgba(111, 142, 240, 0.12), transparent 32%),
+            linear-gradient(145deg, #edf3ff 0%, #f8fafc 46%, #e3ebff 100%);
+        padding: 1.4rem;
+    }
+
+    .create-chat-shell {
+        max-width: 920px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: minmax(250px, 300px) 1fr;
+        gap: 1rem;
+    }
+
+    .create-chat-info,
+    .create-chat-card {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 1rem;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .create-chat-info {
+        padding: 1.15rem;
+        align-self: start;
+        position: sticky;
+        top: 1rem;
+    }
+
+    .create-chat-info h2 {
+        margin: 0 0 0.55rem;
+        color: #0f172a;
+        font-size: 1.02rem;
+        font-weight: 800;
+    }
+
+    .create-chat-info p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    .guideline-list {
+        margin: 0.95rem 0 0;
+        padding: 0 0 0 1rem;
+        color: #334155;
+        font-size: 0.82rem;
+        line-height: 1.55;
+    }
+
+    .create-chat-card {
+        padding: 1.35rem;
+    }
+
+    .card-head {
+        margin-bottom: 1.15rem;
+    }
+
+    .card-head h1 {
+        margin: 0 0 0.4rem;
+        color: #0f172a;
+        font-size: 1.5rem;
+        font-weight: 800;
+    }
+
+    .card-head p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.9rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.45rem;
+        color: #1e293b;
+        font-size: 0.88rem;
+        font-weight: 700;
+    }
+
+    #id_name,
+    #id_description {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.7rem;
+        padding: 0.68rem 0.78rem;
+        font-size: 0.9rem;
+        color: #0f172a;
+        background: #ffffff;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #id_name:focus,
+    #id_description:focus {
+        outline: none;
+        border-color: #4169e1;
+        box-shadow: 0 0 0 3px rgba(65, 105, 225, 0.15);
+    }
+
+    #id_description {
+        min-height: 130px;
+        resize: vertical;
+    }
+
+    .hint {
+        margin-top: 0.35rem;
+        color: #64748b;
+        font-size: 0.76rem;
+    }
+
+    .checkbox-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.68rem;
+        padding: 0.82rem;
+        border: 1px solid #dbe3ef;
+        border-radius: 0.78rem;
+        background: #f8fbff;
+    }
+
+    #id_is_public {
+        margin-top: 0.08rem;
+        width: 1rem;
+        height: 1rem;
+        accent-color: #4169e1;
+    }
+
+    .checkbox-copy {
+        color: #334155;
+        font-size: 0.83rem;
+        line-height: 1.5;
+    }
+
+    .error-list,
+    .non-field-errors {
+        list-style: none;
+        margin: 0.45rem 0 0;
+        padding: 0;
+        color: #b42339;
+        font-size: 0.8rem;
+    }
+
+    .actions {
+        display: flex;
+        gap: 0.65rem;
+        margin-top: 1.25rem;
+    }
+
+    .btn {
+        border: none;
+        border-radius: 0.72rem;
+        padding: 0.65rem 0.95rem;
+        font-size: 0.86rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn-primary {
+        flex: 1;
+        background: #4169e1;
+        color: #ffffff;
+    }
+
+    .btn-primary:hover {
+        background: #3457c5;
+    }
+
+    .btn-secondary {
+        flex: 1;
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    .btn-secondary:hover {
+        background: #cbd5e1;
+    }
+
+    @media (max-width: 900px) {
+        .create-chat-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .create-chat-info {
+            position: static;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .create-chat-page {
+            padding: 0.9rem;
+        }
+
+        .create-chat-card,
+        .create-chat-info {
+            padding: 1rem;
+        }
+
+        .actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="create-chat-page">
+    <div class="create-chat-shell">
+        <aside class="create-chat-info">
+            <h2>Group Quality Tips</h2>
+            <p>Well-structured groups help members collaborate faster and reduce moderation issues.</p>
+            <ul class="guideline-list">
+                <li>Use a clear, specific name.</li>
+                <li>Add a concise purpose in the description.</li>
+                <li>Set to private for invite-only teamwork.</li>
+                <li>Keep scope focused to one topic.</li>
+            </ul>
+        </aside>
+
+        <section class="create-chat-card">
+            <div class="card-head">
+                <h1>Create Chat Group</h1>
+                <p>Start a professional discussion space for your community or project.</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_name">Group Name</label>
+                    {{ form.name }}
+                    <p class="hint">Example: Immigration Support - Toronto</p>
+                    {% if form.name.errors %}
+                    <ul class="error-list">
+                        {% for error in form.name.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_description">Description</label>
+                    {{ form.description }}
+                    <p class="hint">Briefly explain the purpose, audience, and expected topics.</p>
+                    {% if form.description.errors %}
+                    <ul class="error-list">
+                        {% for error in form.description.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group checkbox-row">
+                    {{ form.is_public }}
+                    <div class="checkbox-copy">
+                        <label for="id_is_public">Make this group public</label>
+                        <div>When enabled, any authenticated user can discover and join this group.</div>
+                    </div>
+                </div>
+
+                {% if form.non_field_errors %}
+                <ul class="non-field-errors">
+                    {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Create Group</button>
+                    <a href="{% url 'professional_chat:chat_group_list' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+{% endblock %}

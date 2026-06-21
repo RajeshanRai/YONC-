@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .coming-soon-page {
+        min-height: calc(100vh - 64px);
+        background: linear-gradient(145deg, #f8fafc 0%, #eef2ff 55%, #dbeafe 100%);
+        padding: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .coming-soon-card {
+        width: min(100%, 620px);
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 1rem;
+        padding: 1.4rem;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        text-align: center;
+    }
+
+    .coming-soon-pill {
+        display: inline-block;
+        margin-bottom: 0.7rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid #bfdbfe;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+
+    .coming-soon-card h1 {
+        margin: 0 0 0.55rem;
+        font-size: 1.45rem;
+        color: #0f172a;
+    }
+
+    .coming-soon-card p {
+        margin: 0 0 1rem;
+        color: #475569;
+        line-height: 1.6;
+        font-size: 0.92rem;
+    }
+
+    .back-link {
+        display: inline-block;
+        text-decoration: none;
+        background: #2563eb;
+        color: #ffffff;
+        border-radius: 0.65rem;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    .back-link:hover {
+        background: #1d4ed8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="coming-soon-page">
+    <section class="coming-soon-card">
+        <span class="coming-soon-pill">Tool Update</span>
+        <h1>Coming Soon</h1>
+        <p>This tool is currently being prepared and will be available in an upcoming update.</p>
+        <a href="{% url 'tools:tools_home' %}" class="back-link">Back to Tools</a>
+    </section>
+</div>
+{% endblock %}

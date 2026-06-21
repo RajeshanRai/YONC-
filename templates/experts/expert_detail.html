@@ -46,7 +46,7 @@
                         </div>
                         
                         <div class="flex flex-wrap items-center gap-3 text-sm">
-                            <span class="px-2.5 py-1 text-xs font-medium rounded-md" style="background-color: {{ expert.category.color }}20; color: {{ expert.category.color }};">
+                            <span class="px-2.5 py-1 text-xs font-medium rounded-md bg-slate-100 text-text-primary" data-category-bg="{{ expert.category.color_with_alpha }}" data-category-color="{{ expert.category.color }}">
                                 <i class="{{ expert.category.icon_class }} mr-1"></i>{{ expert.category.name }}
                             </span>
                             <span class="flex items-center gap-1 text-text-muted">
@@ -264,19 +264,38 @@
                     </span>
                     {% endif %}
                 </div>
-                {% if available_slots %}
+                {% if future_slots %}
+                <p class="text-xs text-text-muted mb-3">Times below are shown in your timezone: {{ current_timezone }}.</p>
                 <div class="space-y-4">
-                    {% for slot in available_slots %}
+                    {% for slot in future_slots %}
                     <div class="rounded-3xl border border-border-subtle p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
                             <p class="text-sm font-medium text-text-primary">{{ slot.start_time|date:'M d, Y' }} · {{ slot.start_time|time:'h:i A' }} - {{ slot.end_time|time:'h:i A' }}</p>
-                            <p class="text-xs text-text-muted">Available now</p>
+                            {% if slot.expert_timezone %}
+                            <p class="text-xs text-text-muted mt-1">Expert set timezone: {{ slot.expert_timezone }}</p>
+                            {% endif %}
+                            {% if slot.remaining_capacity > 0 %}
+                            <p class="text-xs text-text-muted">Available now · Available spots: {{ slot.remaining_capacity }}</p>
+                            {% else %}
+                            <p class="text-xs text-text-muted">Fully booked · No spots remaining</p>
+                            {% endif %}
+                            <p class="text-xs text-text-secondary mt-1">Days: {{ slot.days_of_week_display }}</p>
+                            {% if slot.discussion_topic %}
+                            <p class="text-xs text-text-secondary mt-1">Topic: {{ slot.discussion_topic }}</p>
+                            {% endif %}
+                            {% if slot.meeting_link %}
+                            <p class="text-xs mt-1"><a href="{{ slot.meeting_link }}" target="_blank" class="text-accent-blue hover:underline">Join meeting</a></p>
+                            {% endif %}
                         </div>
                         <div class="flex items-center gap-3">
-                            {% if user.is_authenticated %}
-                            <a href="{% url 'appointments:book_appointment' slot.pk %}" class="px-4 py-2 bg-accent-blue hover:bg-blue-600 text-white rounded-full text-sm font-medium transition-all">Book Slot</a>
+                            {% if slot.remaining_capacity > 0 %}
+                                {% if user.is_authenticated %}
+                                <a href="{% url 'appointments:book_appointment' slot.pk %}" class="px-4 py-2 bg-accent-blue hover:bg-blue-600 text-white rounded-full text-sm font-medium transition-all">Book Slot</a>
+                                {% else %}
+                                <a href="{% url 'login' %}?next={% url 'appointments:book_appointment' slot.pk %}" class="px-4 py-2 bg-accent-blue hover:bg-blue-600 text-white rounded-full text-sm font-medium transition-all">Sign in to Book</a>
+                                {% endif %}
                             {% else %}
-                            <a href="{% url 'login' %}?next={% url 'appointments:book_appointment' slot.pk %}" class="px-4 py-2 bg-accent-blue hover:bg-blue-600 text-white rounded-full text-sm font-medium transition-all">Sign in to Book</a>
+                                <span class="px-4 py-2 rounded-full bg-border-subtle text-xs text-text-muted">Booked Out</span>
                             {% endif %}
                         </div>
                     </div>
@@ -284,11 +303,8 @@
                 </div>
                 {% else %}
                 <div class="rounded-3xl border border-border-subtle p-6 text-center">
-                    {% if next_available_slot %}
-                    <p class="text-sm font-semibold text-text-primary mb-2">Next available opening: {{ next_available_slot.start_time|date:'M d, Y' }} at {{ next_available_slot.start_time|time:'h:i A' }}.</p>
-                    {% endif %}
                     <p class="text-text-secondary">
-                        No open consultation slots are currently available.
+                        No upcoming consultation slots are currently scheduled.
                         {% if has_conversation %}
                             You can still message the expert to request a suitable time.
                         {% else %}

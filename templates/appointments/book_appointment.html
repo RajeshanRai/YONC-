@@ -8,6 +8,18 @@
         <div class="bg-bg-surface rounded-3xl border border-border-subtle p-8 shadow-sm">
             <h1 class="text-2xl font-semibold text-text-primary mb-4">Book your consultation</h1>
             <p class="text-text-secondary mb-6">Consultation with {{ timeslot.expert.user.get_full_name_display }} on {{ timeslot.get_display_window }}.</p>
+            <p class="text-sm text-text-muted mb-2">Showing time in your timezone: {{ current_timezone }}</p>
+            {% if timeslot.expert_timezone %}
+            <p class="text-sm text-text-secondary mb-2">Expert set this slot in: {{ timeslot.expert_timezone }} ({{ timeslot.get_expert_display_window }})</p>
+            {% endif %}
+            <p class="text-sm text-text-muted mb-2">Available spots: {{ timeslot.remaining_capacity }}</p>
+            <p class="text-sm text-text-secondary mb-2">Days available: {{ timeslot.days_of_week_display }}</p>
+            {% if timeslot.discussion_topic %}
+            <p class="text-sm text-text-secondary mb-2">Topic: {{ timeslot.discussion_topic }}</p>
+            {% endif %}
+            {% if timeslot.meeting_link %}
+            <p class="text-sm text-text-secondary mb-4">Meeting link will be shared after booking.</p>
+            {% endif %}
 
             <form method="post" class="space-y-6">
                 {% csrf_token %}

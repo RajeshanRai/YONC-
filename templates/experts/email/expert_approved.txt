@@ -1,0 +1,10 @@
+Hello {{ user.get_full_name_display }},
+
+Congratulations! Your expert application has been approved on Youth of Nepal in Canada.
+
+You are now a verified expert in {{ category.name }}. Your profile is now visible to users seeking expert guidance.
+
+Visit your profile to start receiving requests and build your reputation.
+
+Thank you,
+The Youth of Nepal in Canada team

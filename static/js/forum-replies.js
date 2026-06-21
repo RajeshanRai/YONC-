@@ -1,4 +1,4 @@
-document.addEventListener('click', function(e){
+document.addEventListener('click', async function(e){
     // Toggle reply form
     if(e.target && e.target.classList.contains('reply-toggle')){
         e.preventDefault();
@@ -76,7 +76,7 @@ document.addEventListener('click', function(e){
     // Delete comment
     if(e.target && e.target.classList.contains('btn-comment-delete')){
         e.preventDefault();
-        if(!confirm('Delete this comment?')) return;
+        if(!(await window.appConfirmAsync('Delete this comment?', { title: 'Delete comment', tone: 'warning', confirmText: 'Delete' }))) return;
         var id = e.target.getAttribute('data-id');
         var csrf = getCookie('csrftoken');
         fetch(`/community/comment/${id}/delete/`, {
@@ -89,9 +89,9 @@ document.addEventListener('click', function(e){
                 var el = document.getElementById('comment-' + id);
                 if(el) el.remove();
             } else {
-                alert('Could not delete comment');
+                window.appAlert('Could not delete comment', 'danger');
             }
-        }).catch(function(){ alert('Network error'); });
+        }).catch(function(){ window.appAlert('Network error', 'danger'); });
     }
 
     // Pin/unpin comment (post owner only)
@@ -111,9 +111,9 @@ document.addEventListener('click', function(e){
                 // reload to reflect pinned order
                 window.location.reload();
             } else {
-                alert('Could not pin comment');
+                window.appAlert('Could not pin comment', 'danger');
             }
-        }).catch(function(){ alert('Network error'); });
+        }).catch(function(){ window.appAlert('Network error', 'danger'); });
     }
 });
 
@@ -176,9 +176,9 @@ document.addEventListener('submit', function(e){
             // clear textarea
             var ta = form.querySelector('textarea[name="content"]'); if(ta) ta.value='';
         } else {
-            alert('Could not post reply');
+            window.appAlert('Could not post reply', 'danger');
         }
-    }).catch(function(){ alert('Network error'); });
+    }).catch(function(){ window.appAlert('Network error', 'danger'); });
 });
 
 // Handle inline comment edit submissions
@@ -208,7 +208,7 @@ document.addEventListener('submit', function(e){
                 window.location.reload();
             }
         } else {
-            alert(json.error || 'Could not save comment');
+            window.appAlert(json.error || 'Could not save comment', 'danger');
         }
-    }).catch(function(){ alert('Network error'); });
+    }).catch(function(){ window.appAlert('Network error', 'danger'); });
 });

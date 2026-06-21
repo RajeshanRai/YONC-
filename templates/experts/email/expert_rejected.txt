@@ -1,0 +1,10 @@
+Hello {{ user.get_full_name_display }},
+
+Thank you for submitting your expert application to Youth of Nepal in Canada.
+
+After careful review, your application for {{ category.name }} was not approved at this time.
+
+We encourage you to review your profile and try again later if your experience or qualifications change.
+
+Thank you for your interest,
+The Youth of Nepal in Canada team

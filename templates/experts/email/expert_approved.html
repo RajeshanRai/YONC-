@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verified Expert</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            font-family: Inter, system-ui, sans-serif;
+            color: #0f172a;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+        }
+        .header {
+            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+            padding: 40px 24px;
+            text-align: center;
+            color: white;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.16);
+            color: #0f172a;
+            font-weight: 700;
+            margin-top: 18px;
+        }
+        .content {
+            padding: 32px 28px 36px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0 0 12px;
+            color: #0f172a;
+        }
+        .subtitle {
+            font-size: 16px;
+            line-height: 1.75;
+            color: #475569;
+            margin: 0 0 24px;
+        }
+        .button {
+            display: inline-block;
+            background: #0ea5e9;
+            color: white;
+            text-decoration: none;
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+        .footer {
+            padding: 24px 28px 32px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>You're Verified!</h1>
+            <div class="badge">
+                <span>✔</span>
+                Verified Expert
+            </div>
+        </div>
+        <div class="content">
+            <p class="title">Congratulations, {{ user.get_full_name_display }}!</p>
+            <p class="subtitle">Your expert application has been approved and you are now a verified expert in <strong>{{ category.name }}</strong> on Youth of Nepal in Canada.</p>
+            <p class="subtitle">Your profile is now visible to people searching for expert support, and you can start receiving appointment requests.</p>
+            {% if expert_profile_url %}
+            <a href="{{ expert_profile_url }}" class="button">View Your Expert Profile</a>
+            {% endif %}
+        </div>
+        <div class="footer">
+            <p>Thank you for joining the Youth of Nepal in Canada expert community.</p>
+        </div>
+    </div>
+</body>
+</html>

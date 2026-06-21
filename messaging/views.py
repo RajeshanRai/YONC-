@@ -5,10 +5,51 @@ from django.db.models import Q, Count, Max
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
+from pathlib import Path
 
 from accounts.models import User
 from experts.models import ExpertProfile
 from .models import Message, Conversation
+
+
+MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024
+ALLOWED_ATTACHMENT_EXTENSIONS = {'.pdf', '.doc', '.docx', '.xls', '.xlsx'}
+ALLOWED_ATTACHMENT_CONTENT_TYPES = {
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/octet-stream',
+}
+
+
+def _validate_chat_attachment(uploaded_file):
+    if not uploaded_file:
+        return None
+
+    extension = Path(uploaded_file.name).suffix.lower()
+    if extension not in ALLOWED_ATTACHMENT_EXTENSIONS:
+        return 'Only PDF, Word, and Excel files are allowed.'
+
+    content_type = (uploaded_file.content_type or '').lower()
+    if content_type and content_type not in ALLOWED_ATTACHMENT_CONTENT_TYPES:
+        return 'Only PDF, Word, and Excel files are allowed.'
+
+    if uploaded_file.size > MAX_ATTACHMENT_SIZE_BYTES:
+        return 'File too large. Maximum allowed size is 10 MB.'
+
+    return None
+
+
+def _refresh_conversation_last_message(user1, user2):
+    conversation = Conversation.get_or_create_conversation(user1, user2)
+    last_message = Message.objects.filter(
+        (Q(sender=user1) & Q(receiver=user2)) |
+        (Q(sender=user2) & Q(receiver=user1))
+    ).order_by('-timestamp').first()
+    conversation.last_message = last_message
+    conversation.save(update_fields=['last_message', 'updated_at'])
 
 
 @login_required
@@ -86,7 +127,7 @@ def chat_view(request, user_id):
     context = {
         'conversation': conversation,
         'other_user': other_user,
-        'messages': page_obj,
+        'chat_messages': page_obj,
         'expert_profile': expert_profile,
         'unread_count': unread_count,
         'title': f'Chat with {other_user.get_full_name_display()}',
@@ -100,9 +141,17 @@ def send_message(request):
     """AJAX endpoint to send a message."""
     receiver_id = request.POST.get('receiver_id')
     content = request.POST.get('content', '').strip()
+    attachment = request.FILES.get('attachment')
     
-    if not receiver_id or not content:
+    if not receiver_id:
         return JsonResponse({'status': 'error', 'message': 'Missing required fields'}, status=400)
+
+    if not content and not attachment:
+        return JsonResponse({'status': 'error', 'message': 'Enter a message or attach a file.'}, status=400)
+
+    attachment_error = _validate_chat_attachment(attachment)
+    if attachment_error:
+        return JsonResponse({'status': 'error', 'message': attachment_error}, status=400)
     
     try:
         receiver = User.objects.get(id=receiver_id, is_active=True)
@@ -116,7 +165,8 @@ def send_message(request):
     message = Message.objects.create(
         sender=request.user,
         receiver=receiver,
-        content=content
+        content=content,
+        attachment=attachment,
     )
     
     # Update conversation
@@ -129,6 +179,8 @@ def send_message(request):
         'message_id': message.id,
         'timestamp': message.get_timestamp_display(),
         'content': message.content,
+        'attachment_url': message.attachment.url if message.attachment else '',
+        'attachment_name': message.get_attachment_name(),
     })
 
 
@@ -161,6 +213,8 @@ def get_messages(request, user_id):
             'timestamp': msg.get_timestamp_display(),
             'sender_id': msg.sender_id,
             'sender_name': msg.sender.get_full_name_display(),
+            'attachment_url': msg.attachment.url if msg.attachment else '',
+            'attachment_name': msg.get_attachment_name(),
         })
     
     return JsonResponse({
@@ -189,7 +243,13 @@ def get_conversations(request):
             'name': other.get_full_name_display(),
             'avatar': other.get_profile_picture_url(),
             'unread': unread,
-            'last_message': conv.last_message.content[:50] if conv.last_message else '',
+            'last_message': (
+                conv.last_message.content[:50]
+                if conv.last_message and conv.last_message.content
+                else f'Attachment: {conv.last_message.get_attachment_name()}'
+                if conv.last_message and conv.last_message.attachment
+                else ''
+            ),
             'last_timestamp': conv.last_message.get_timestamp_display() if conv.last_message else '',
         })
     
@@ -207,3 +267,40 @@ def start_chat(request, expert_id):
     """Start a chat with an expert."""
     expert = get_object_or_404(ExpertProfile, id=expert_id, is_approved=True)
     return redirect('chat_view', user_id=expert.user.id)
+
+
+@login_required
+@require_POST
+def edit_message(request, message_id):
+    """Allow sender to edit own direct message content."""
+    message = get_object_or_404(Message, id=message_id, sender=request.user)
+    content = request.POST.get('content', '').strip()
+
+    if not content and not message.attachment:
+        return JsonResponse({'status': 'error', 'message': 'Message cannot be empty.'}, status=400)
+
+    message.content = content
+    message.save(update_fields=['content'])
+
+    return JsonResponse({
+        'status': 'success',
+        'message_id': message.id,
+        'content': message.content,
+    })
+
+
+@login_required
+@require_POST
+def delete_message(request, message_id):
+    """Allow sender to delete own direct message."""
+    message = get_object_or_404(Message, id=message_id, sender=request.user)
+    sender = message.sender
+    receiver = message.receiver
+    message.delete()
+    _refresh_conversation_last_message(sender, receiver)
+
+    return JsonResponse({
+        'status': 'success',
+        'deleted': True,
+        'message_id': message_id,
+    })

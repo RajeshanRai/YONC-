@@ -15,6 +15,7 @@
     <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 text-center">
         <p class="text-2xl font-bold text-text-primary">{{ stats.total }}</p>
         <p class="text-xs text-text-muted mt-1">Total Messages</p>
+        <p class="text-[11px] text-text-muted mt-1">Direct: {{ stats.direct_total }} | Group: {{ stats.group_total }}</p>
     </div>
     <div class="bg-bg-navy border border-border-subtle rounded-xl p-5 text-center">
         <p class="text-2xl font-bold text-accent-cyan">{{ stats.today }}</p>
@@ -36,6 +37,7 @@
                     <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Last Message</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Time</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Unread</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-border-subtle">
@@ -74,11 +76,70 @@
                         <span class="px-2 py-0.5 text-[10px] font-medium bg-bg-navy/10 text-text-muted rounded-md">0</span>
                         {% endif %}
                     </td>
+                    <td class="px-4 py-3">
+                        <form method="post" action="{% url 'delete_conversation_messages' row.conversation.id %}" data-confirm="Delete all direct messages in this conversation?" data-confirm-title="Delete conversation messages" data-confirm-tone="warning">
+                            {% csrf_token %}
+                            <button type="submit" class="px-2.5 py-1 text-[11px] font-semibold text-red-600 border border-red-200 rounded-md hover:bg-red-50">Delete all</button>
+                        </form>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="px-4 py-8 text-center text-text-muted text-sm">
+                    <td colspan="5" class="px-4 py-8 text-center text-text-muted text-sm">
                         No conversations found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="bg-bg-navy border border-border-subtle rounded-xl overflow-hidden mt-8">
+    <div class="px-4 py-3 border-b border-border-subtle bg-bg-navy-hover">
+        <h2 class="text-sm font-semibold text-text-primary">Group Chats</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="bg-bg-navy-hover border-b border-border-subtle">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Group</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Members</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Messages</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Last Message</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border-subtle">
+                {% for row in group_rows %}
+                <tr class="hover:bg-bg-navy-hover transition-colors">
+                    <td class="px-4 py-3 text-sm text-text-secondary">{{ row.group.name }}</td>
+                    <td class="px-4 py-3 text-sm text-text-secondary">{{ row.members_count }}</td>
+                    <td class="px-4 py-3 text-sm text-text-secondary">{{ row.message_count }}</td>
+                    <td class="px-4 py-3">
+                        {% if row.last_message %}
+                        <span class="text-xs text-text-muted">{{ row.last_message.created_at|timesince }} ago</span>
+                        {% else %}
+                        <span class="text-xs text-text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-2">
+                        <form method="post" action="{% url 'delete_group_messages' row.group.id %}" data-confirm="Delete all messages in this group?" data-confirm-title="Delete group messages" data-confirm-tone="warning">
+                            {% csrf_token %}
+                            <button type="submit" class="px-2.5 py-1 text-[11px] font-semibold text-red-600 border border-red-200 rounded-md hover:bg-red-50">Delete all</button>
+                        </form>
+                        <form method="post" action="{% url 'delete_group' row.group.id %}" data-confirm="Delete this group completely? This will remove all members and messages." data-confirm-title="Delete group" data-confirm-tone="warning">
+                            {% csrf_token %}
+                            <button type="submit" class="px-2.5 py-1 text-[11px] font-semibold text-white bg-red-600 border border-red-600 rounded-md hover:bg-red-700">Delete group</button>
+                        </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-4 py-8 text-center text-text-muted text-sm">
+                        No group chats found.
                     </td>
                 </tr>
                 {% endfor %}

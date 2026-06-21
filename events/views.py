@@ -7,9 +7,11 @@ from .models import Event, EventRegistration
 
 
 def event_list(request):
-    events = Event.objects.filter(start_time__gte=timezone.now()).order_by('start_time')
+    now = timezone.now()
+    events = Event.objects.all().order_by('start_time')
     context = {
         'events': events,
+        'now': now,
         'title': 'Upcoming Events',
     }
     return render(request, 'events/event_list.html', context)

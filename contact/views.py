@@ -14,7 +14,7 @@ def contact_us(request):
             messages.success(
                 request,
                 'Thank you for your message! We\'ll get back to you soon.',
-                extra_tags='success'
+                extra_tags='contact_success'
             )
             return redirect('contact_us')
     else:

@@ -1,0 +1,1322 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ group.name }} - Chat{% endblock %}
+
+{% block extra_css %}
+<style>
+    .room-page {
+        min-height: calc(100vh - 64px);
+        background: linear-gradient(140deg, #eff6ff 0%, #f8fafc 55%, #e2e8f0 100%);
+        padding: 1rem;
+    }
+
+    .room-shell {
+        max-width: 1320px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 1rem;
+    }
+
+    .panel {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.9rem;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
+    }
+
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .sidebar-header {
+        padding: 1rem;
+        border-bottom: 1px solid #cbd5e1;
+    }
+
+    .sidebar-header h2 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 0.35rem;
+    }
+
+    .sidebar-header p {
+        font-size: 0.82rem;
+        color: #475569;
+        line-height: 1.45;
+    }
+
+    .meta-block {
+        padding: 0.8rem 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .meta-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.78rem;
+        color: #475569;
+        margin-bottom: 0.35rem;
+    }
+
+    .meta-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .members-section {
+        padding: 0.9rem 1rem;
+        overflow-y: auto;
+        max-height: 260px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .members-section h3 {
+        font-size: 0.76rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 0.65rem;
+    }
+
+    .member-item {
+        display: grid;
+        grid-template-columns: 34px 1fr auto;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.44rem;
+        border-radius: 0.6rem;
+        transition: background 0.2s ease;
+    }
+
+    .member-item:hover {
+        background: #f8fafc;
+    }
+
+    .member-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        background: linear-gradient(145deg, #2563eb, #0ea5e9);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.74rem;
+        font-weight: 700;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .member-name {
+        font-size: 0.84rem;
+        color: #1e293b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .member-role {
+        display: inline-flex;
+        margin-top: 0.18rem;
+        border-radius: 999px;
+        padding: 0.08rem 0.4rem;
+        font-size: 0.64rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        font-weight: 700;
+        background: #e2e8f0;
+        color: #475569;
+    }
+
+    .member-role.admin {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .member-role.moderator {
+        background: #cffafe;
+        color: #0e7490;
+    }
+
+    .member-actions {
+        display: flex;
+        gap: 0.32rem;
+        align-items: center;
+    }
+
+    .invite-block,
+    .add-member-block {
+        padding: 0.9rem 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .invite-block h4,
+    .add-member-block h4 {
+        font-size: 0.76rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 0.55rem;
+    }
+
+    .invite-url {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.6rem;
+        padding: 0.52rem 0.58rem;
+        font-size: 0.76rem;
+        color: #334155;
+        background: #f8fafc;
+        margin-bottom: 0.48rem;
+    }
+
+    .search-row {
+        display: flex;
+        gap: 0.45rem;
+        margin-bottom: 0.55rem;
+    }
+
+    .search-row input {
+        flex: 1;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.55rem;
+        padding: 0.45rem 0.55rem;
+        font-size: 0.78rem;
+    }
+
+    .candidate-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        max-height: 190px;
+        overflow-y: auto;
+    }
+
+    .candidate-item {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.35rem;
+        align-items: center;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.55rem;
+        padding: 0.45rem;
+    }
+
+    .candidate-name {
+        font-size: 0.76rem;
+        color: #1e293b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .candidate-role {
+        font-size: 0.7rem;
+        color: #64748b;
+    }
+
+    .sidebar-footer {
+        display: flex;
+        gap: 0.5rem;
+        padding: 0.9rem 1rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 0.58rem;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.52rem 0.75rem;
+        transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: #ffffff;
+    }
+
+    .btn-primary:hover {
+        background: #1d4ed8;
+    }
+
+    .btn-muted {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .btn-muted:hover {
+        background: #cbd5e1;
+    }
+
+    .btn-danger {
+        background: #dc2626;
+        color: #ffffff;
+    }
+
+    .btn-danger:hover {
+        background: #b91c1c;
+    }
+
+    .btn-xs {
+        font-size: 0.72rem;
+        padding: 0.34rem 0.52rem;
+    }
+
+    .main-chat {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .chat-header {
+        padding: 1rem 1.1rem;
+        border-bottom: 1px solid #cbd5e1;
+        background: #ffffff;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.8rem;
+        position: relative;
+    }
+
+    .chat-header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .chat-header p {
+        margin-top: 0.35rem;
+        font-size: 0.84rem;
+        color: #475569;
+    }
+
+    .chat-settings-panel {
+        position: absolute;
+        right: 1.1rem;
+        top: calc(100% - 0.25rem);
+        width: 290px;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.75rem;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);
+        padding: 0.8rem;
+        display: none;
+        z-index: 40;
+    }
+
+    .chat-settings-panel.show {
+        display: block;
+    }
+
+    .chat-settings-title {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #334155;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.6rem;
+    }
+
+    .chat-setting-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.82rem;
+        color: #334155;
+        margin-bottom: 0.5rem;
+    }
+
+    .chat-setting-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .chat-notice {
+        margin: 0.85rem 1.1rem 0;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1e3a8a;
+        border-radius: 0.62rem;
+        padding: 0.72rem 0.8rem;
+        font-size: 0.82rem;
+    }
+
+    .messages-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem 1.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .message-group {
+        display: flex;
+        gap: 0.65rem;
+    }
+
+    .message-group.compact {
+        margin-top: 0;
+        gap: 0;
+    }
+
+    .message-group.system {
+        justify-content: center;
+        gap: 0;
+    }
+
+    .message-group.system .message-avatar,
+    .message-group.system .message-avatar-spacer,
+    .message-group.system .message-header {
+        display: none;
+    }
+
+    .message-group.system .message-content {
+        flex: 0 auto;
+    }
+
+    .message-group.system .message-text {
+        background: transparent;
+        color: #64748b;
+        border: none;
+        border-radius: 0;
+        padding: 0.16rem 0.35rem;
+        font-size: 0.75rem;
+        text-align: center;
+    }
+
+    .message-group.compact .message-header {
+        display: none;
+    }
+
+    .message-group.compact .message-avatar-spacer {
+        display: block;
+        width: 36px;
+        visibility: hidden;
+    }
+
+    .message-group.mine {
+        justify-content: flex-end;
+        flex-direction: row;
+    }
+
+    .message-group.mine .message-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .message-group.mine .message-header {
+        justify-content: flex-start;
+    }
+
+    .message-actions {
+        margin-top: 0.35rem;
+        display: inline-flex;
+        gap: 0.45rem;
+    }
+
+    .message-action-btn {
+        border: none;
+        background: transparent;
+        font-size: 0.7rem;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .message-group.mine .message-action-btn {
+        color: #dbeafe;
+    }
+
+    .message-group.mine .message-action-btn:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .message-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        background: linear-gradient(145deg, #2563eb, #0ea5e9);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.74rem;
+        font-weight: 700;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .message-avatar-spacer {
+        width: 36px;
+        flex-shrink: 0;
+    }
+
+    .message-content {
+        flex: 0 1 auto;
+        max-width: 78%;
+        min-width: 0;
+    }
+
+    .message-group.system .message-content {
+        max-width: none;
+    }
+
+    .message-header {
+        display: flex;
+        align-items: baseline;
+        gap: 0.45rem;
+        margin-bottom: 0.16rem;
+    }
+
+    .message-sender {
+        font-size: 0.83rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .message-time {
+        font-size: 0.7rem;
+        color: #64748b;
+    }
+
+    .message-text {
+        background: #f8fafc;
+        border: none;
+        box-shadow: none;
+        outline: none;
+        border-radius: 0.62rem;
+        padding: 0.62rem 0.72rem;
+        color: #1e293b;
+        line-height: 1.45;
+        font-size: 0.84rem;
+        word-break: break-word;
+    }
+
+    .message-group.mine .message-text {
+        background: #2563eb;
+        border: none;
+        box-shadow: none;
+        outline: none;
+        color: #ffffff;
+    }
+
+    .message-flagged {
+        background: #fffbeb;
+        border: none;
+    }
+
+    .toxicity-badge {
+        display: inline-block;
+        margin-top: 0.45rem;
+        font-size: 0.67rem;
+        font-weight: 700;
+        padding: 0.2rem 0.44rem;
+        border-radius: 999px;
+        background: #fee2e2;
+        color: #7f1d1d;
+    }
+
+    .input-section {
+        border-top: 1px solid #cbd5e1;
+        background: #ffffff;
+        padding: 0.85rem 1.1rem;
+    }
+
+    .message-form {
+        display: flex;
+        gap: 0.55rem;
+        align-items: flex-end;
+    }
+
+    .message-form textarea {
+        flex: 1;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.62rem;
+        padding: 0.62rem 0.7rem;
+        min-height: 44px;
+        max-height: 115px;
+        resize: vertical;
+        font: inherit;
+        font-size: 0.85rem;
+        color: #0f172a;
+        background: #ffffff;
+    }
+
+    .message-form textarea:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+    }
+
+    .send-btn {
+        background: #2563eb;
+        color: #ffffff;
+        border: none;
+        border-radius: 0.62rem;
+        padding: 0.62rem 0.9rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .send-btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+    .file-picker-btn {
+        background: #e2e8f0;
+        color: #334155;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.62rem;
+        padding: 0.62rem 0.8rem;
+        font-size: 0.82rem;
+        cursor: pointer;
+    }
+
+    .file-picker-btn:hover {
+        background: #cbd5e1;
+    }
+
+    .chat-file-row {
+        margin-top: 0.45rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.45rem;
+    }
+
+    .chat-file-status {
+        font-size: 0.72rem;
+        color: #64748b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 78%;
+    }
+
+    .chat-file-clear {
+        font-size: 0.7rem;
+        border: none;
+        background: transparent;
+        color: #64748b;
+        cursor: pointer;
+    }
+
+    .chat-file-clear:hover {
+        color: #1e293b;
+    }
+
+    .attachment-link {
+        margin-top: 0.45rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.73rem;
+        color: #1e3a8a;
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        background: #e2e8f0;
+        text-decoration: none;
+        padding: 0.25rem 0.55rem;
+    }
+
+    .attachment-link:hover {
+        background: #dbeafe;
+    }
+
+    .message-group.mine .attachment-link {
+        background: rgba(191, 219, 254, 0.25);
+        color: #dbeafe;
+        border: none;
+    }
+
+    .message-group.mine .attachment-link:hover {
+        background: rgba(191, 219, 254, 0.35);
+    }
+
+    .empty-state {
+        border: 1px dashed #bfdbfe;
+        border-radius: 0.7rem;
+        background: #f8fbff;
+        padding: 1.2rem;
+        text-align: center;
+        color: #475569;
+        font-size: 0.84rem;
+    }
+
+    .warning-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.58);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 1rem;
+    }
+
+    .warning-modal.show {
+        display: flex;
+    }
+
+    .warning-card {
+        width: 100%;
+        max-width: 520px;
+        background: #ffffff;
+        border-radius: 0.8rem;
+        border: 1px solid #fecaca;
+        overflow: hidden;
+    }
+
+    .warning-card-header {
+        background: #dc2626;
+        color: #ffffff;
+        padding: 0.8rem 0.95rem;
+        font-weight: 700;
+        font-size: 0.88rem;
+    }
+
+    .warning-card-body {
+        padding: 0.9rem 0.95rem;
+        color: #1f2937;
+        font-size: 0.84rem;
+        line-height: 1.45;
+    }
+
+    .warning-card-actions {
+        display: flex;
+        justify-content: flex-end;
+        padding: 0 0.95rem 0.9rem;
+    }
+
+    @media (max-width: 1080px) {
+        .room-shell {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .room-page {
+            padding: 0.6rem;
+        }
+
+        .sidebar-footer {
+            flex-direction: column;
+        }
+
+        .message-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="room-page">
+    <div class="room-shell">
+        <aside class="panel sidebar">
+            <div class="sidebar-header">
+                <h2>{{ group.name }}</h2>
+                <p>{{ group.description|default:"Private communication workspace" }}</p>
+            </div>
+
+            <div class="meta-block">
+                <div class="meta-row"><span>Group visibility</span><span>{% if group.is_public %}Public{% else %}Private{% endif %}</span></div>
+                <div class="meta-row"><span>Members</span><span>{{ members.count }}</span></div>
+                <div class="meta-row"><span>Created</span><span>{{ group.created_at|date:'Y-m-d' }}</span></div>
+            </div>
+
+            <div class="members-section">
+                <h3>Members</h3>
+                {% for membership in group_members %}
+                <div class="member-item">
+                    <div class="member-avatar">
+                        {% if membership.user.profile_picture and membership.user.profile_picture.url != '/media/' %}
+                        <img src="{{ membership.user.profile_picture.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                        {{ membership.user.get_initials }}
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <div class="member-name">{{ membership.user.get_full_name_display }}</div>
+                        <span class="member-role {{ membership.role }}">{{ membership.get_role_display }}</span>
+                    </div>
+
+                    {% if is_group_admin and not group.is_public and membership.user != request.user and membership.user != group.created_by %}
+                    <div class="member-actions">
+                        {% if membership.role == 'member' %}
+                        <form method="post" action="{% url 'professional_chat:promote_group_member_to_moderator' group.pk membership.user.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-xs">Promote</button>
+                        </form>
+                        {% elif membership.role == 'moderator' %}
+                        <form method="post" action="{% url 'professional_chat:demote_group_moderator' group.pk membership.user.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary btn-xs">Demote</button>
+                        </form>
+                        {% endif %}
+                        <form method="post" action="{% url 'professional_chat:remove_group_member' group.pk membership.user.id %}" data-confirm="Remove this member from the group?" data-confirm-title="Remove member" data-confirm-tone="warning">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-xs">Remove</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if is_group_admin and not group.is_public %}
+            <div class="invite-block">
+                <h4>Invite Link</h4>
+                <input id="inviteLinkInput" class="invite-url" type="text" readonly value="{{ invite_link }}">
+                <button type="button" id="copyInviteBtn" class="btn btn-primary btn-xs" style="width: 100%;">Copy Invite Link</button>
+            </div>
+
+            <div class="add-member-block">
+                <h4>Add Members</h4>
+                <form method="get" class="search-row">
+                    <input type="text" name="member_search" value="{{ member_search }}" placeholder="Search user by name or username">
+                    <button type="submit" class="btn btn-muted btn-xs">Search</button>
+                </form>
+                <div class="candidate-list">
+                    {% for user_item in candidate_users %}
+                    <form method="post" action="{% url 'professional_chat:add_private_group_member' group.pk %}" class="candidate-item">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ user_item.id }}">
+                        <div>
+                            <div class="candidate-name">{{ user_item.get_full_name_display }}</div>
+                            <div class="candidate-role">{{ user_item.get_role_display }} · @{{ user_item.username }}</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-xs">Add</button>
+                    </form>
+                    {% empty %}
+                    <div class="empty-state" style="margin-bottom: 0;">
+                        No users matched your search.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="sidebar-footer">
+                <a href="{% url 'professional_chat:chat_group_list' %}" class="btn btn-muted" style="flex: 1;">Back to Groups</a>
+                <a href="{% url 'professional_chat:leave_group' group.pk %}" class="btn btn-danger" style="flex: 1;" data-confirm="Leave this group?" data-confirm-title="Leave group" data-confirm-tone="warning">Leave Group</a>
+            </div>
+            {% if can_delete_group %}
+            <div class="sidebar-footer" style="padding-top: 0;">
+                <form method="post" action="{% url 'professional_chat:delete_chat_group' group.pk %}" style="flex: 1;" data-confirm="Delete this entire group and all its messages?" data-confirm-title="Delete group" data-confirm-tone="warning">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" style="width: 100%;">Delete Group</button>
+                </form>
+            </div>
+            {% endif %}
+        </aside>
+
+        <main class="panel main-chat">
+            <div class="chat-header">
+                <div>
+                    <h1>{{ group.name }}</h1>
+                    <p>Structured conversation workspace with active moderation against hate speech, bullying, and spam.</p>
+                </div>
+                <button type="button" id="chatSettingsToggle" class="btn btn-muted btn-xs">Settings</button>
+
+                <div id="chatSettingsPanel" class="chat-settings-panel">
+                    <div class="chat-settings-title">Chat Settings</div>
+                    <label class="chat-setting-item">
+                        <span>Mute notifications</span>
+                        <input id="muteNotificationsToggle" type="checkbox">
+                    </label>
+                    <label class="chat-setting-item">
+                        <span>Enter to send</span>
+                        <input id="enterToSendToggle" type="checkbox" checked>
+                    </label>
+                    <label class="chat-setting-item">
+                        <span>Auto-scroll new messages</span>
+                        <input id="autoScrollToggle" type="checkbox" checked>
+                    </label>
+                    <p style="font-size: 11px; color: #64748b; margin-top: 0.45rem;">Allowed files: PDF, Word, Excel only (max 10MB).</p>
+                </div>
+            </div>
+
+            <div class="chat-notice">
+                Messages are screened by moderation policies before publishing.
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                {% if chat_messages %}
+                    {% for message in chat_messages %}
+                    <div class="message-group {% if message.is_system %}system{% elif message.sender_id == request.user.id %}mine{% endif %} {% if not message.show_sender_name and not message.is_system %}compact{% endif %}" data-message-id="{{ message.id }}">
+                        {% if message.show_sender_name %}
+                        <div class="message-avatar">
+                            {% if message.get_avatar %}
+                            <img src="{{ message.get_avatar }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                            {{ message.get_initials }}
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="message-avatar-spacer"></div>
+                        {% endif %}
+                        <div class="message-content">
+                            <div class="message-header">
+                                {% if message.show_sender_name %}
+                                <span class="message-sender">{{ message.get_display_name }}</span>
+                                {% endif %}
+                                {% if message.show_time_label %}
+                                <span class="message-time">{{ message.created_at|time:'H:i' }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="message-text {% if message.is_flagged %}message-flagged{% endif %}">
+                                <span class="message-content-value">{% if message.content %}{{ message.content }}{% endif %}</span>
+                                {% if message.attachment %}
+                                <a class="attachment-link" href="{{ message.attachment.url }}" target="_blank" rel="noopener noreferrer">
+                                    <span>File:</span>
+                                    <span>{{ message.get_attachment_name }}</span>
+                                </a>
+                                {% endif %}
+                                {% if message.is_flagged %}
+                                <div class="toxicity-badge">
+                                    Moderation: {% if message.toxicity_reason == 'hate_speech' %}Hate Speech{% elif message.toxicity_reason == 'bullying' %}Bullying{% elif message.toxicity_reason == 'spam' %}Spam{% else %}Flagged{% endif %}
+                                </div>
+                                {% endif %}
+                                {% if message.sender_id == request.user.id and not message.is_system %}
+                                <div class="message-actions">
+                                    <button type="button" class="message-action-btn" onclick="editOwnGroupMessage({{ message.id }})">Edit</button>
+                                    <button type="button" class="message-action-btn" onclick="deleteOwnGroupMessage({{ message.id }})">Delete</button>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    No messages yet. Start the first conversation.
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="input-section">
+                <form id="messageForm" class="message-form">
+                    {% csrf_token %}
+                    <input type="file" id="messageAttachment" accept=".pdf,.doc,.docx,.xls,.xlsx" style="display:none;">
+                    <textarea name="content" id="messageInput" placeholder="Type your message" rows="2"></textarea>
+                    <button type="button" id="attachBtn" class="file-picker-btn">Attach</button>
+                    <button type="submit" class="send-btn" id="sendBtn">Send</button>
+                </form>
+                <div class="chat-file-row">
+                    <span id="chatFileStatus" class="chat-file-status">No file selected</span>
+                    <button type="button" id="chatFileClear" class="chat-file-clear">Clear</button>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div id="warningModal" class="warning-modal" role="dialog" aria-modal="true" aria-labelledby="warningModalTitle">
+    <div class="warning-card">
+        <div id="warningModalTitle" class="warning-card-header">Message Warning</div>
+        <div id="warningModalBody" class="warning-card-body"></div>
+        <div class="warning-card-actions">
+            <button id="warningModalClose" type="button" class="btn btn-muted btn-xs">Close</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const form = document.getElementById('messageForm');
+    const input = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const warningModal = document.getElementById('warningModal');
+    const warningModalBody = document.getElementById('warningModalBody');
+    const warningModalClose = document.getElementById('warningModalClose');
+    const copyInviteBtn = document.getElementById('copyInviteBtn');
+    const inviteLinkInput = document.getElementById('inviteLinkInput');
+    const messageAttachment = document.getElementById('messageAttachment');
+    const attachBtn = document.getElementById('attachBtn');
+    const chatFileStatus = document.getElementById('chatFileStatus');
+    const chatFileClear = document.getElementById('chatFileClear');
+    const chatSettingsToggle = document.getElementById('chatSettingsToggle');
+    const chatSettingsPanel = document.getElementById('chatSettingsPanel');
+    const muteNotificationsToggle = document.getElementById('muteNotificationsToggle');
+    const enterToSendToggle = document.getElementById('enterToSendToggle');
+    const autoScrollToggle = document.getElementById('autoScrollToggle');
+    const sendUrl = "{% url 'professional_chat:send_message' group.pk %}";
+    const messagesUrl = "{% url 'professional_chat:get_messages' group.pk %}";
+    const editMessageUrlTemplate = "{% url 'professional_chat:edit_group_message' group.pk 0 %}";
+    const deleteMessageUrlTemplate = "{% url 'professional_chat:delete_group_message' group.pk 0 %}";
+    const currentUserId = {{ request.user.id }};
+    const allowedFileExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx'];
+    const settingsStoragePrefix = `group-chat-settings:{{ group.pk }}`;
+    let enterToSend = true;
+    let autoScroll = true;
+    let lastMessageId = 0;
+
+    function initializeLastMessageId() {
+        const messageGroups = messagesContainer.querySelectorAll('.message-group');
+        if (!messageGroups.length) {
+            lastMessageId = 0;
+            return;
+        }
+        const lastMessage = messageGroups[messageGroups.length - 1];
+        lastMessageId = parseInt(lastMessage.dataset.messageId || '0', 10);
+    }
+
+    function renderMessage(message) {
+        const isSystem = Boolean(message.is_system);
+        const isMine = !isSystem && Number(message.sender_id) === currentUserId;
+        const actionsHtml = isMine
+            ? `<div class="message-actions"><button type="button" class="message-action-btn" onclick="editOwnGroupMessage(${message.id})">Edit</button><button type="button" class="message-action-btn" onclick="deleteOwnGroupMessage(${message.id})">Delete</button></div>`
+            : '';
+        const senderHtml = message.show_sender_name ? `<span class="message-sender">${escapeHtml(message.sender)}</span>` : '';
+        const timeHtml = message.show_time_label ? `<span class="message-time">${message.created_at}</span>` : '';
+        const avatarInner = message.avatar_url
+            ? `<img src="${escapeHtml(message.avatar_url)}" style="width: 100%; height: 100%; object-fit: cover;">`
+            : escapeHtml(message.initials || 'U');
+        const avatarHtml = message.show_sender_name
+            ? `<div class="message-avatar">${avatarInner}</div>`
+            : `<div class="message-avatar-spacer"></div>`;
+        return `
+            <div class="message-group ${isSystem ? 'system' : (isMine ? 'mine' : '')} ${(!message.show_sender_name && !isSystem) ? 'compact' : ''}" data-message-id="${message.id}">
+                ${avatarHtml}
+                <div class="message-content">
+                    <div class="message-header">
+                        ${senderHtml}
+                        ${timeHtml}
+                    </div>
+                    <div class="message-text ${message.is_flagged ? 'message-flagged' : ''}">
+                        <span class="message-content-value">${message.content ? escapeHtml(message.content) : ''}</span>
+                        ${message.attachment_url ? `<a class="attachment-link" href="${escapeHtml(message.attachment_url)}" target="_blank" rel="noopener noreferrer"><span>File:</span><span>${escapeHtml(message.attachment_name || 'Attachment')}</span></a>` : ''}
+                        ${message.is_flagged ? `<div class="toxicity-badge">Moderation: ${getToxicityLabel(message.toxicity_reason)}</div>` : ''}
+                        ${actionsHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    async function fetchNewMessages() {
+        try {
+            const response = await fetch(`${messagesUrl}?after_id=${lastMessageId}`);
+            const data = await response.json();
+            if (data.success && data.messages.length) {
+                if (messagesContainer.querySelector('.empty-state')) {
+                    messagesContainer.innerHTML = '';
+                }
+
+                data.messages.forEach((message) => {
+                    messagesContainer.innerHTML += renderMessage(message);
+                    lastMessageId = Math.max(lastMessageId, message.id);
+                });
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        } catch (err) {
+            console.warn('Polling error:', err);
+        }
+    }
+
+    async function postMessage(content, attachmentFile) {
+        const formData = new FormData();
+        formData.append('content', content);
+        if (attachmentFile) {
+            formData.append('attachment', attachmentFile);
+        }
+
+        const response = await fetch(sendUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: formData
+        });
+        const data = await response.json();
+        return {
+            ok: response.ok,
+            status: response.status,
+            data,
+        };
+    }
+
+    function showWarningModal(text) {
+        warningModalBody.textContent = text;
+        warningModal.classList.add('show');
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const content = input.value.trim();
+        const selectedFile = messageAttachment.files[0] || null;
+        if (!content && !selectedFile) {
+            showWarningModal('Type a message or attach a file.');
+            return;
+        }
+
+        if (selectedFile && !isAllowedChatFile(selectedFile)) {
+            showWarningModal('Only PDF, Word, and Excel files are allowed.');
+            return;
+        }
+
+        sendBtn.disabled = true;
+
+        try {
+            const { ok, data } = await postMessage(content, selectedFile);
+            if (data.success) {
+                const message = data.message;
+                if (messagesContainer.querySelector('.empty-state')) {
+                    messagesContainer.innerHTML = '';
+                }
+                messagesContainer.innerHTML += renderMessage(message);
+                lastMessageId = Math.max(lastMessageId, message.id);
+                if (autoScroll) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+                input.value = '';
+                messageAttachment.value = '';
+                chatFileStatus.textContent = 'No file selected';
+            } else {
+                if (data.warning) {
+                    const reason = getToxicityLabel(data.toxicity_reason || '');
+                    let warningText = `Your message was blocked (${reason}). Violations: ${data.violations_count}. Remaining before account block: ${data.violations_remaining}.`;
+
+                    if (data.blocked) {
+                        warningText = 'Your account has been blocked after 10 violations. All your chat messages were deleted.';
+                    }
+
+                    showWarningModal(warningText);
+
+                    if (data.blocked && data.redirect_url) {
+                        setTimeout(() => {
+                            window.location.href = data.redirect_url;
+                        }, 1500);
+                    }
+                } else if (!ok && data.blocked && data.redirect_url) {
+                    showWarningModal(data.error || 'Your account is blocked.');
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 1500);
+                } else {
+                    showWarningModal('Error sending message: ' + (data.error || 'Unknown error'));
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showWarningModal('Failed to send message. Please try again.');
+        } finally {
+            sendBtn.disabled = !input.value.trim() && !messageAttachment.files.length;
+            input.focus();
+        }
+    });
+
+    function isAllowedChatFile(file) {
+        const extension = (file.name.split('.').pop() || '').toLowerCase();
+        return allowedFileExtensions.includes(extension);
+    }
+
+    function loadChatSettings() {
+        const storedMute = localStorage.getItem(settingsStoragePrefix + ':mute');
+        const storedEnter = localStorage.getItem(settingsStoragePrefix + ':enterToSend');
+        const storedAutoScroll = localStorage.getItem(settingsStoragePrefix + ':autoScroll');
+
+        muteNotificationsToggle.checked = storedMute === '1';
+        enterToSend = storedEnter !== '0';
+        autoScroll = storedAutoScroll !== '0';
+        enterToSendToggle.checked = enterToSend;
+        autoScrollToggle.checked = autoScroll;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function getToxicityLabel(reason) {
+        const labels = {
+            'hate_speech': 'Hate Speech',
+            'bullying': 'Bullying',
+            'spam': 'Spam'
+        };
+        return labels[reason] || 'Flagged';
+    }
+
+    async function editOwnGroupMessage(messageId) {
+        const wrapper = document.querySelector(`.message-group[data-message-id="${messageId}"]`);
+        if (!wrapper) return;
+        const textNode = wrapper.querySelector('.message-content-value');
+        const current = textNode ? textNode.textContent.trim() : '';
+        const updated = await window.appPromptAsync('Edit your message', current, {
+            title: 'Edit message',
+            confirmText: 'Save',
+            cancelText: 'Cancel',
+            tone: 'info',
+        });
+        if (updated === null) return;
+
+        const formData = new FormData();
+        formData.append('content', updated.trim());
+
+        fetch(editMessageUrlTemplate.replace('/0/', `/${messageId}/`), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: formData,
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success && textNode) {
+                textNode.textContent = data.content;
+            } else {
+                showWarningModal(data.error || 'Unable to edit message.');
+            }
+        })
+        .catch(() => showWarningModal('Unable to edit message.'));
+    }
+
+    async function deleteOwnGroupMessage(messageId) {
+        const confirmed = await window.appConfirmAsync('Delete this message?', {
+            title: 'Delete message',
+            confirmText: 'Delete',
+            tone: 'warning',
+        });
+        if (!confirmed) {
+            return;
+        }
+
+        fetch(deleteMessageUrlTemplate.replace('/0/', `/${messageId}/`), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                const wrapper = document.querySelector(`.message-group[data-message-id="${messageId}"]`);
+                if (wrapper) {
+                    wrapper.remove();
+                }
+            } else {
+                showWarningModal(data.error || 'Unable to delete message.');
+            }
+        })
+        .catch(() => showWarningModal('Unable to delete message.'));
+    }
+
+    window.addEventListener('load', () => {
+        initializeLastMessageId();
+        sendBtn.disabled = !input.value.trim();
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        setInterval(fetchNewMessages, 5000);
+        input.addEventListener('input', () => {
+            sendBtn.disabled = !input.value.trim() && !messageAttachment.files.length;
+        });
+
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey && enterToSend) {
+                event.preventDefault();
+                form.requestSubmit();
+            }
+        });
+
+        attachBtn.addEventListener('click', () => messageAttachment.click());
+
+        messageAttachment.addEventListener('change', () => {
+            const selectedFile = messageAttachment.files[0];
+            if (!selectedFile) {
+                chatFileStatus.textContent = 'No file selected';
+                sendBtn.disabled = !input.value.trim();
+                return;
+            }
+
+            if (!isAllowedChatFile(selectedFile)) {
+                messageAttachment.value = '';
+                chatFileStatus.textContent = 'No file selected';
+                showWarningModal('Only PDF, Word, and Excel files are allowed.');
+                sendBtn.disabled = !input.value.trim();
+                return;
+            }
+
+            chatFileStatus.textContent = selectedFile.name;
+            sendBtn.disabled = false;
+        });
+
+        chatFileClear.addEventListener('click', () => {
+            messageAttachment.value = '';
+            chatFileStatus.textContent = 'No file selected';
+            sendBtn.disabled = !input.value.trim();
+        });
+
+        chatSettingsToggle.addEventListener('click', () => {
+            chatSettingsPanel.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!chatSettingsPanel.contains(event.target) && !chatSettingsToggle.contains(event.target)) {
+                chatSettingsPanel.classList.remove('show');
+            }
+        });
+
+        muteNotificationsToggle.addEventListener('change', () => {
+            localStorage.setItem(settingsStoragePrefix + ':mute', muteNotificationsToggle.checked ? '1' : '0');
+        });
+
+        enterToSendToggle.addEventListener('change', () => {
+            enterToSend = enterToSendToggle.checked;
+            localStorage.setItem(settingsStoragePrefix + ':enterToSend', enterToSend ? '1' : '0');
+        });
+
+        autoScrollToggle.addEventListener('change', () => {
+            autoScroll = autoScrollToggle.checked;
+            localStorage.setItem(settingsStoragePrefix + ':autoScroll', autoScroll ? '1' : '0');
+        });
+
+        loadChatSettings();
+
+        warningModalClose.addEventListener('click', () => {
+            warningModal.classList.remove('show');
+        });
+
+        warningModal.addEventListener('click', (event) => {
+            if (event.target === warningModal) {
+                warningModal.classList.remove('show');
+            }
+        });
+
+        if (copyInviteBtn && inviteLinkInput) {
+            copyInviteBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(inviteLinkInput.value);
+                    showWarningModal('Invite link copied successfully.');
+                } catch (e) {
+                    inviteLinkInput.select();
+                    document.execCommand('copy');
+                    showWarningModal('Invite link copied successfully.');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

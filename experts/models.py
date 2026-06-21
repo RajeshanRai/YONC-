@@ -1,6 +1,9 @@
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils import timezone
 from services.models import ServiceCategory
 
 
@@ -149,33 +152,85 @@ class ExpertApplication(models.Model):
     def __str__(self):
         return f"Application: {self.user.username} - {self.category.name} ({self.status})"
     
-    def approve(self):
-        """Approve this application and create an ExpertProfile."""
+    def approve(self, reviewer=None):
+        """Approve this application and create or update an ExpertProfile."""
+        if self.status == 'approved':
+            return
+
         self.status = 'approved'
+        self.reviewed_at = timezone.now()
+        if reviewer is not None:
+            self.reviewed_by = reviewer
         self.save()
-        
-        # Create expert profile
-        ExpertProfile.objects.create(
-            user=self.user,
-            category=self.category,
-            years_experience=self.years_experience,
-            bio=self.bio,
-            qualifications=self.qualifications,
-            specialties=self.specialties,
-            phone_number=self.phone_number,
-            province=self.province,
-            city=self.city,
-            is_approved=True,
-        )
-        
-        # Update user role
+
+        profile_values = {
+            'category': self.category,
+            'years_experience': self.years_experience,
+            'bio': self.bio,
+            'qualifications': self.qualifications,
+            'specialties': self.specialties,
+            'phone_number': self.phone_number,
+            'province': self.province,
+            'city': self.city,
+            'is_approved': True,
+        }
+
+        profile, created = ExpertProfile.objects.get_or_create(user=self.user, defaults=profile_values)
+        if not created:
+            for field, value in profile_values.items():
+                setattr(profile, field, value)
+            profile.save()
+
         self.user.role = 'expert'
         self.user.save()
-    
-    def reject(self):
+
+        self.send_approval_email()
+
+    def reject(self, reviewer=None):
         """Reject this application."""
         self.status = 'rejected'
+        self.reviewed_at = timezone.now()
+        if reviewer is not None:
+            self.reviewed_by = reviewer
         self.save()
+        self.send_rejection_email()
+
+    def send_rejection_email(self):
+        """Send an email to the user when their application is rejected."""
+        subject = 'Your expert application status on Youth of Nepal in Canada'
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None)
+        recipient = self.user.email
+
+        context = {
+            'user': self.user,
+            'category': self.category,
+        }
+
+        text_body = render_to_string('experts/email/expert_rejected.txt', context)
+        html_body = render_to_string('experts/email/expert_rejected.html', context)
+
+        email = EmailMultiAlternatives(subject, text_body, from_email, [recipient])
+        email.attach_alternative(html_body, 'text/html')
+        email.send(fail_silently=True)
+
+    def send_approval_email(self):
+        """Send an email to the user when their application is approved."""
+        subject = 'You are now a verified expert on Youth of Nepal in Canada'
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None)
+        recipient = self.user.email
+
+        context = {
+            'user': self.user,
+            'category': self.category,
+            'expert_profile_url': self.user.get_absolute_url() if hasattr(self.user, 'get_absolute_url') else None,
+        }
+
+        text_body = render_to_string('experts/email/expert_approved.txt', context)
+        html_body = render_to_string('experts/email/expert_approved.html', context)
+
+        email = EmailMultiAlternatives(subject, text_body, from_email, [recipient])
+        email.attach_alternative(html_body, 'text/html')
+        email.send(fail_silently=True)
 
 
 class ExpertExperience(models.Model):

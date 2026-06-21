@@ -18,6 +18,8 @@ urlpatterns = [
     path('community/', include('community.urls')),
     path('messages/', include('messaging.urls')),
     path('dashboard/', include('dashboard.urls')),
+    path('professional-chat/', include('professional_chat.urls')),
+    path('tools/', include('tools.urls')),
 ]
 
 if settings.DEBUG:
