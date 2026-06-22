@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     'events',
     'community',
     'professional_chat',
-    'tools',
 ]
 
 MIDDLEWARE = [

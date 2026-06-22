@@ -75,9 +75,6 @@
                                 <a href="{% url 'application_status' %}" class="block px-4 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover transition-colors">
                                     <i class="fa-solid fa-clipboard-check mr-2 w-5"></i>Application Status
                                 </a>
-                                <a href="{% url 'tools:tools_home' %}" class="block px-4 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover transition-colors">
-                                    <i class="fa-solid fa-screwdriver-wrench mr-2 w-5"></i>Tools
-                                </a>
                             </div>
                             <div class="border-t border-border-subtle py-1">
                                 <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-emergency-red hover:bg-bg-navy-hover transition-colors">
@@ -111,7 +108,6 @@
                 {% endif %}
                 <a href="{% url 'profile' %}" class="block px-3 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover">My Profile</a>
                 <a href="{% url 'professional_chat:chat_group_list' %}" class="block px-3 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover">💬 Chat</a>
-                <a href="{% url 'tools:tools_home' %}" class="block px-3 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover">Tools</a>
                 {% if not user.is_expert %}
                 <a href="{% url 'apply_expert' %}" class="block px-3 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-navy-hover">Become an Expert</a>
                 {% endif %}
