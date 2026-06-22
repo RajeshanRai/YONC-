@@ -112,7 +112,7 @@
                             {{ category.name }}
                         </h3>
                         <p class="text-sm text-text-secondary leading-relaxed mb-3">
-                            {{ category.description|default:"Professional support and guidance available." }}
+                            {{ category.description|default:"Professional support and guidance available."|truncatewords:15 }}
                         </p>
                         <div class="flex items-center justify-between">
                             <span class="text-xs text-text-muted">{{ category.expert_profiles.count }} expert{{ category.expert_profiles.count|pluralize }}</span>
